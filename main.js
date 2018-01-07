@@ -1,17 +1,12 @@
-function OnLoad()
-{
-    document.app = new App();
-    //document.getElementById("SourceData").style.display = "block";
-    document.getElementById("SourceDataButton").className += " active";
-}
+document.app = new App();
 
 function App()
 {
     this.searchInput = undefined;
 }
 
-App.prototype.search = function()
+$(document).ready(function () 
 {
-    this.searchInput = document.getElementById("searchInput").value;
-    console.log("App Search " + this.searchInput);
-}
+    document.getElementById("DiscretizingButton").className += " active";
+    document.app.SuffixtreeJS();
+});
