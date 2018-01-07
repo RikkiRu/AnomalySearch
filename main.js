@@ -1,6 +1,8 @@
 function OnLoad()
 {
     document.app = new App();
+    //document.getElementById("SourceData").style.display = "block";
+    document.getElementById("SourceDataButton").className += " active";
 }
 
 function App()

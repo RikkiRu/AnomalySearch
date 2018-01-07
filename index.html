@@ -3,11 +3,50 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <title>Anomaly search</title>
+
         <script type="text/javascript" src="main.js"></script>
+        <script type="text/javascript" src="lib/jquery.min.js"></script>
+        <script type="text/javascript" src="lib/d3.min.js"></script>
+        <script type="text/javascript" src="suffixtree/ukkonen.js"></script>
+        <script type="text/javascript" src="suffixtree/suffixtree.js"></script>
+        <script type="text/javascript" src="elements/tabs/tabs.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="suffixtree/style.css">
+        <link rel="stylesheet" type="text/css" href="elements/tabs/tabs.css">
+
     </head>
     <body onload="OnLoad()">
-        <div>Anomaly search</div>
-        <input id="searchInput" type="text" size="40">
-        <button onclick="app.search()">Search</button>
+
+        <div id="mainContainer">
+            <div class="tab">
+                <button id="SourceDataButton" class="tablinks" onclick="OpenTab(event, 'SourceData')">Source data</button>
+                <button class="tablinks" onclick="OpenTab(event, 'SuffixTree')">Suffix tree</button>
+                <button class="tablinks" onclick="OpenTab(event, 'Links')">Links</button>
+            </div>
+            <div id="SourceData" class="tabcontent" style="display: block;">
+                <h3>Source data</h3>
+                <p>Load your data here</p>
+                <div id="error"></div>
+                <div class="input">
+                    <textarea id="words" name="words" placeholder="MISSISSIPPI"></textarea>
+                    <button id="show">Apply</button>
+                </div>
+            </div>
+            <div id="SuffixTree" class="tabcontent">
+                <h3>Suffix tree</h3>
+                <p>Here you can see visualization of the suffix tree</p>
+                <div id="output"> </div>
+            </div>
+            <div id="Links" class="tabcontent">
+                <h3>Links to related works / projects</h3>
+                <ul>
+                    <li>Suffix tree building: <a href="https://github.com/maclandrol/SuffixTreeJS">https://github.com/maclandrol/SuffixTreeJS</a></li>
+                </ul>
+                <hr>
+                Soldatkin A.N. ulstu 2018
+            </div>
+        </div>
+
     </body>
 </html>

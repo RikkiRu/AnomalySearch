@@ -1,0 +1,52 @@
+.node {
+	cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: #bbb;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+.input{
+	width:inherit;
+	display: inline-block;
+	margin-bottom: 2rem;
+}
+
+.input textarea{
+	min-height: 60px;
+	min-width: 20rem;
+	max-width: 40rem;
+	display: block;
+}
+
+#show{
+	margin-top: 10px;
+	display: block;
+	clear: right;
+}
+
+#error{
+	border: 1px solid;
+	display : none;
+	margin-bottom:  15px;
+	max-width: 36rem;
+	padding: 8px;
+	color: #D8000C;
+	background-color: #FFBABA;
+}
+
+#output{
+    overflow: auto;
+}
