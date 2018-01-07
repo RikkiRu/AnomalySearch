@@ -11,12 +11,12 @@
         <script type="text/javascript" src="suffixtree/ukkonen.js"></script>
         <script type="text/javascript" src="suffixtree/suffixtree.js"></script>
         <script type="text/javascript" src="elements/tabs/tabs.js"></script>
-        <script type="text/javascript" src="lib/vis/vis.min.js"></script>
+        <script type="text/javascript" src="lib/vis/dygraph.min.js"></script>
 
         <link rel="stylesheet" type="text/css" href="style.css">
         <link rel="stylesheet" type="text/css" href="suffixtree/style.css">
         <link rel="stylesheet" type="text/css" href="elements/tabs/tabs.css">
-        <link rel="stylesheet" type="text/css" href="lib/vis/vis.min.css">
+        <link rel="stylesheet" type="text/css" href="lib/vis/dygraph.css">
 
     </head>
     <body>
@@ -31,8 +31,11 @@
             <div id="Discretizing" class="tabcontent" style="display: block;">
                 <h3>Конвертация в символьный ряд</h3>
                 <p>Исходные данные</p>
-                <textarea id="discretizingTextArea" placeholder="4.3 4.2 1.1 2.0 3.3 4.1 4.3"></textarea>
+                <textarea id="discretizingTextArea"></textarea>
                 <button id="applyConvert" class="applyBtn">Применить</button>
+                <br>
+                <div id="convertDataSource" style="width:300px; height:200px;"></div>
+                <br>
             </div>
             <div id="SourceData" class="tabcontent">
                 <h3>Символьный ряд</h3>
@@ -51,7 +54,14 @@
             <div id="Links" class="tabcontent">
                 <h3>Ссылки на использованные работы / библиотеки</h3>
                 <ul>
-                    <li>Построение суффиксного дерева (Алгоритм Укконена): <a href="https://github.com/maclandrol/SuffixTreeJS">https://github.com/maclandrol/SuffixTreeJS</a></li>
+                    <li>Построение суффиксного дерева (Алгоритм Укконена): 
+                        <a href="https://github.com/maclandrol/SuffixTreeJS">https://github.com/maclandrol/SuffixTreeJS</a>
+                    </li>
+                    
+                    <li>Библиотека для графиков: 
+                        <a href="http://dygraphs.com/">http://dygraphs.com/</a>
+                    </li>
+                    
                 </ul>
                 <hr>
                 Солдаткин А.Н., УлГТУ 2018, ПИмд-21

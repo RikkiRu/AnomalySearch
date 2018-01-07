@@ -1,5 +1,7 @@
 document.app.SuffixtreeJS = function () 
 {
+	var app = document.app;
+
 	var special_chars = '#$&%@?+*';
 	var colorlist = ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99","#b15928"];
 	var max_string = colorlist.length;
@@ -8,8 +10,8 @@ document.app.SuffixtreeJS = function ()
 	stree.addString('MISSION#');
 	var treeData = stree.addString('MISSISSIPPI$').convertToJson();
 
-	var realWidth = document.getElementById('Discretizing').clientWidth * 0.9;
-	var realHeight = document.getElementById('Discretizing').clientHeight * 0.7;
+	var realWidth = app.getContentSize().width * 0.9;
+	var realHeight = app.getContentSize().height * 0.7;
 
 	// ************** Generate the tree diagram	 *****************
 	var margin = {top: 5, right: 25, bottom: 20, left: 50},
