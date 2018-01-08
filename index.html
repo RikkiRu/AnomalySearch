@@ -24,32 +24,49 @@
         <div id="mainContainer">
             <div class="tab">
                 <button id="DiscretizingButton" class="tablinks" onclick="OpenTab(event, 'Discretizing')">Конвертация</button>
-                <button class="tablinks" onclick="OpenTab(event, 'SourceData')">Символьный ряд</button>
-                <button class="tablinks" onclick="OpenTab(event, 'SuffixTree')">Суффиксное дерево</button>
+                <button class="tablinks" onclick="OpenTab(event, 'SourceData')">Символьные ряды</button>
+                <button class="tablinks" onclick="OpenTab(event, 'SuffixTree')">Суффиксные деревья</button>
                 <button class="tablinks" onclick="OpenTab(event, 'Links')">Ссылки</button>
             </div>
             <div id="Discretizing" class="tabcontent" style="display: block;">
-                <h3>Конвертация в символьный ряд</h3>
-                <p>Исходные данные</p>
-                <textarea id="discretizingTextArea"></textarea>
+                <h3>Конвертация в символьные ряды</h3>
+                <p>Данные без аномалий (X)</p>
+                <textarea id="discretizingTextAreaX"></textarea>
+                <p>Данные для поиска аномалий (R)</p>
+                <textarea id="discretizingTextAreaR"></textarea>
+
+                <p>Кол-во используемых символов (2-26)</p>
+                <input id="usingSymbolsCount" value="10"></input>
+
+                <p>Интервал дискретизации</p>
+                <input id="usingSamplingInterval" value="10"></input>
+
                 <button id="applyConvert" class="applyBtn">Применить</button>
                 <br>
-                <div id="convertDataSource" style="width:300px; height:200px;"></div>
+                <div id="graphConvertDataSourceX"></div>
+                <br>
+                <div id="graphConvertDataSourceR"></div>
                 <br>
             </div>
             <div id="SourceData" class="tabcontent">
-                <h3>Символьный ряд</h3>
-                <p>Символьный ряд для обработки</p>
-                <div id="error"></div>
+                <h3>Символьные ряды</h3>
+                <p>Символьный ряд X<p>
                 <div class="input">
-                    <textarea id="words" name="words" placeholder="MISSISSIPPI"></textarea>
-                    <button id="show" class="applyBtn">Применить</button>
+                    <textarea id="wordsX" name="wordsX"></textarea>
+                </div>
+                <p>Символьный ряд R<p>
+                <div class="input">
+                    <textarea id="wordsR" name="wordsR"></textarea>
                 </div>
             </div>
             <div id="SuffixTree" class="tabcontent">
-                <h3>Суффиксное дерево</h3>
-                <p>Визуализация построенного суффиксного дерева</p>
-                <div id="output"> </div>
+                <h3>Суффиксные деревья</h3>
+                <p>Визуализация суффиксного дерева X</p>
+                <div id="errorWordsX" class="errorWords"></div>
+                <div id="suffixTreeX" class="graphOutput"> </div>
+                <p>Визуализация суффиксного дерева R</p>
+                <div id="errorWordsR" class="errorWords"></div>
+                <div id="suffixTreeR" class="graphOutput"> </div>
             </div>
             <div id="Links" class="tabcontent">
                 <h3>Ссылки на использованные работы / библиотеки</h3>

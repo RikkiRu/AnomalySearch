@@ -1,6 +1,8 @@
-document.app.SuffixtreeJS = function () 
+var d3 = d3;
+
+app.SuffixtreeJS = function(data) 
 {
-	var app = document.app;
+	var treeBuilder = {};
 
 	var special_chars = '#$&%@?+*';
 	var colorlist = ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99","#b15928"];
@@ -29,38 +31,41 @@ document.app.SuffixtreeJS = function ()
 	var diagonal = d3.svg.diagonal()
 		.projection(function(d) { return [d.y, d.x]; });
 
-	var svg = d3.select("#output").append("svg")
+	var svg = d3.select(data.outputID).append("svg")
 		.attr("height", realHeight)
 		.attr("width", realWidth)
-	.append("g")
+		.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	root = treeData;
 	root.x0 = height / 2;
 	root.y0 = 0;
 
-	function buildTree()
+	treeBuilder.buildTree = function()
 	{
-		var str_list = $( "#words" ).val().split(",");
+		var str_list = $( data.wordsID ).val().split(",");
 
-		if (!check_char($( "#words" ).val(), special_chars)){
-			$( "#error" ).text("Ваши строки не должны содержать ни один из спец. символов: " +  special_chars);
-			$( "#error" ).toggle(true);
+		if (!check_char($( data.wordsID ).val(), special_chars)){
+			$( data.errorID ).text("Ваши строки не должны содержать ни один из спец. символов: " +  special_chars);
+			$( data.errorID ).toggle(true);
 		}
 
 		else if(str_list.length > max_string){
-			$( "#error" ).text("Достигнут лимит (" + max_string + ") кол-ва строк!");
-			$( "#error" ).toggle(true);
+			$( data.errorID ).text("Достигнут лимит (" + max_string + ") кол-ва строк!");
+			$( data.errorID ).toggle(true);
 		}
 
 		else{
 
+			var totalSymbols = 0;
+
 			if(str_list.length > 0 && !(str_list.length==1 && str_list[0]==="")){
-				$( "#error" ).toggle(false);
+				$( data.errorID ).toggle(false);
 				stree =  new SuffixTree();
 				for(var i=0; i<str_list.length; i++){
 					var s = str_list[i] + get_add_special_char(i, special_chars)
 					stree.addString(s);
+					totalSymbols+=s.length;
 				}
 				root =  stree.convertToJson();
 			}
@@ -68,15 +73,36 @@ document.app.SuffixtreeJS = function ()
 				root = treeData;
 			}
 
-			root.x0 = height / 2;
-			root.y0 = 0;
-			update(root);
+			var maxSymbols = 30;
+
+			if (totalSymbols <= maxSymbols)
+			{
+				root.x0 = height / 2;
+				root.y0 = 0;
+				update(root);
+			}
+			else
+			{
+				$( data.errorID ).text("Дерево не было визуализировано, т.к. общее кол-во символов превысило порог " + maxSymbols);
+				$( data.errorID ).toggle(true);
+			}
 		}
 	}
 
-	$( "#show" ).click(buildTree);
-
 	d3.select(self.frameElement).style("height", "800px");
+
+	var getDepth = function (jdata) {
+		var depth = 0;
+		if (jdata.children) {
+			jdata.children.forEach(function (d) {
+				var cdepth = getDepth(d)
+				if (cdepth > depth) {
+					depth = cdepth
+				}
+			})
+		}
+		return 1 + depth
+	}
 
 	function update(source) {
 
@@ -202,16 +228,7 @@ document.app.SuffixtreeJS = function ()
 		}).length <1;
 	}
 
-	getDepth = function (jdata) {
-		var depth = 0;
-		if (jdata.children) {
-			jdata.children.forEach(function (d) {
-				var cdepth = getDepth(d)
-				if (cdepth > depth) {
-					depth = cdepth
-				}
-			})
-		}
-		return 1 + depth
-	}
+
+
+	return treeBuilder;
 };

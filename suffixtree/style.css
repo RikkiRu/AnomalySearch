@@ -36,7 +36,7 @@ textarea{
 	clear: right;
 }
 
-#error{
+.errorWords{
 	border: 1px solid;
 	display : none;
 	margin-bottom:  15px;
@@ -46,6 +46,6 @@ textarea{
 	background-color: #FFBABA;
 }
 
-#output{
+.graphOutput{
     overflow: auto;
 }
