@@ -1,4 +1,5 @@
 var $ = $;
+var Dygraph = Dygraph;
 
 function App()
 {
@@ -83,7 +84,6 @@ App.prototype.drawGraph = function(graph, arr, title)
     if (arr[0].length === 3)
         labels = [ "x", "y1", "y2" ];
 
-    // @ts-ignore
     new Dygraph(
         graph,
         arr,
@@ -136,9 +136,6 @@ App.prototype.generateSymbolsData = function(minMax, symbolStep)
     return symbolsData;
 }
 
-/**
-* @memberof App
-*/
 App.prototype.applyConvert = function(sourceArray, sampledArray, graph, title, putTo)
 {
     var symbols = "";

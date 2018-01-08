@@ -3,16 +3,16 @@
 
 'use strict';
 
-function Node(){
+function UNode(){
     this.transition = {};
     this.suffixLink = null;
 }
 
-Node.prototype.addTransition = function(node, start, end, t) {
+UNode.prototype.addTransition = function(node, start, end, t) {
     this.transition[t] = [node, start, end];
 }
 
-Node.prototype.isLeaf = function() {
+UNode.prototype.isLeaf = function() {
     return Object.keys(this.transition).length === 0;
 }
 
@@ -21,8 +21,8 @@ function SuffixTree (){
     this.text = '';
     this.str_list = [];
     this.seps = []
-    this.root = new Node();
-    this.bottom = new Node();
+    this.root = new UNode();
+    this.bottom = new UNode();
     this.root.suffixLink = this.bottom;
     this.s = this.root;
     this.k = 0;
@@ -65,7 +65,7 @@ SuffixTree.prototype.update = function(s, k, i) {
   var endPoint = endAndr[0]; var r = endAndr[1]    
 
   while(!endPoint) {
-    r.addTransition(new Node(), i, Infinity, this.text[i]);
+    r.addTransition(new UNode(), i, Infinity, this.text[i]);
 
     if(oldr != this.root) {
       oldr.suffixLink = r;
@@ -94,7 +94,7 @@ SuffixTree.prototype.testAndSplit = function(s, k, p, t) {
     if(t == this.text[k2 + p - k + 1]) {
       return [true, s];
     } else {
-      var r = new Node();
+      var r = new UNode();
       s.addTransition(r, k2, k2 + p - k, this.text[k2]);
       r.addTransition(s2, k2 + p - k + 1, p2, this.text[k2 + p - k + 1]);
       return [false, r];
