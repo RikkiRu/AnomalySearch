@@ -10,7 +10,9 @@ app.SuffixtreeJS = function(data)
 
 	var stree = new SuffixTree();
 	stree.addString('MISSION#');
-	var treeData = stree.addString('MISSISSIPPI$').convertToJson();
+	stree.addString('MISSISSIPPI$');
+	stree.finish();
+	var treeData = stree.convertToJson();
 
 	var realWidth = app.getContentSize().width * 0.9;
 	var realHeight = app.getContentSize().height * 0.7;
@@ -67,7 +69,9 @@ app.SuffixtreeJS = function(data)
 					stree.addString(s);
 					totalSymbols+=s.length;
 				}
-				root =  stree.convertToJson();
+				stree.finish();
+				root = stree.convertToJson();
+				treeBuilder.sTree = stree;
 			}
 			else{
 				root = treeData;
@@ -133,6 +137,7 @@ app.SuffixtreeJS = function(data)
 		.attr("dy", ".35em")
 		.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
 		//.text(function(d) { return d.name+ (d.start?" ["+d.start + (d.seq ? ","+d.seq:"")+ "]":""); })
+		//.text(function(d) { return d.name + " " + d.leafChilds; })
 		.text(function(d) { return d.name; })
 		.style("fill-opacity", 1e-6);
 

@@ -220,8 +220,16 @@ App.prototype.applyConvertAll = function()
     app.applyConvert(
         arrR, sampledR, app.graphConvertDataSourceR, "График R", app.wordsR);
 
+    app.buildTrees();
+}
+
+App.prototype.buildTrees = function()
+{
     app.treeBuilderX.buildTree();
     app.treeBuilderR.buildTree();
+
+    //var node = app.treeBuilderX.sTree.searchNode("bc");
+    //console.log(node);
 }
 
 App.prototype.resizeGraph = function(htmlElement)
@@ -277,6 +285,7 @@ $(document).ready(function()
     app.applyConvertAll();
 
     $("#applyConvert").click(app.applyConvertAll);
+    $("#applyTree").click(app.buildTrees);
 });
 
 var app = new App();

@@ -129,16 +129,84 @@ SuffixTree.prototype.canonize = function(s, k, p) {
   }
 }
 
+SuffixTree.prototype.finish = function()
+{
+  this.countLeafChilds(this.root);
+}
+
+SuffixTree.prototype.searchNode = function(str)
+{
+  for (var i=0; i<str.length; i++)
+  {
+    var s = str[i];
+    console.log(s);
+  }
+
+  return this.CheckNodeForStr(str, this.root);
+}
+
+SuffixTree.prototype.CheckNodeForStr = function(str, node)
+{
+  //console.log("search " + str);
+
+  for(var t in node.transition) 
+  {
+    var traNs = node.transition[t];
+    var s = traNs[0], a = traNs[1], b = traNs[2]; 
+    var name = this.text.substring(a, b + 1);
+
+    if (name.startsWith(str))
+    {
+      //console.log("found at " + name);
+      return s;
+    }
+    else if (str.startsWith(name))
+    {
+      //console.log("starts with " + name);
+      return this.CheckNodeForStr(str.substring(name.length, str.length), s);
+    }
+    else
+    {
+      //console.log("not found " + str + " at " + name);
+    }
+  }
+
+  //console.log("not found at all");
+  return null;
+}
+
+SuffixTree.prototype.countLeafChilds = function(node)
+{
+  var sum = 0;
+
+  for (var t in node.transition) 
+  {
+    var traNs = node.transition[t];
+    var child = traNs[0];
+    if (child.isLeaf())
+    {
+      child.leafChilds = 1;
+      sum++;
+    }
+    else
+      sum += this.countLeafChilds(child);
+  }
+
+  node.leafChilds = sum;
+
+  return sum;
+}
 
 SuffixTree.prototype.convertToJson = function(){
   // convert tree to json to use with d3js
- 
+
   var text = this.text;
   var ret = {
       "name" : "",
       "parent": "null",
       "suffix" : "",
-      "children": []
+      "children": [],
+      "leafChilds": 0
   }
 
   function traverse(node, seps, str_list, ret) {
@@ -161,7 +229,8 @@ SuffixTree.prototype.convertToJson = function(){
         "name" : name,
         "parent": ret['name'],
         "suffix" : suffix,
-        "children": []
+        "children": [],
+        "leafChilds": s.leafChilds
       };
       if (s.isLeaf()){
         cchild['seq'] = position +1;
