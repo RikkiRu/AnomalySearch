@@ -19,7 +19,14 @@ function App()
     this.usingSymbolsCount = null;
     this.discretizingTextAreaX = null;
     this.discretizingTextAreaR = null;
-    this.usingSamplingInterval = null;    
+    this.usingSamplingInterval = null;
+    this.tarzanHistory = null;
+    this.maxTarzanSequenceLength = null;
+    this.minTarzanSequenceLength = null;
+    this.clearLog = null;
+    this.maxTarzanError = null;
+    this.graphResults = null;
+    this.anomalyArrayX = [0];
 }
 
 App.prototype.getContentSize = function()
@@ -77,7 +84,7 @@ App.prototype.sampleArray = function(arr, step)
     return sampledArray;
 }
 
-App.prototype.drawGraph = function(graph, arr, title)
+App.prototype.drawGraph = function(graph, arr, title, anomalyList)
 {
     var labels = [ "x", "y" ];
 
@@ -88,9 +95,26 @@ App.prototype.drawGraph = function(graph, arr, title)
         graph,
         arr,
         {
-          showRangeSelector: true,
-          labels: labels,
-          title: title
+            stackedGraph: false,
+            showRangeSelector: true,
+            labels: labels,
+            title: title,
+
+            underlayCallback: function(canvas, area, g) 
+            {
+                for (var i=0; i<anomalyList.length; i++)
+                {
+                    var a = anomalyList[i];
+                    var bottom_left = g.toDomCoords(a.start, -20);
+                    var top_right = g.toDomCoords(a.start + a.length, +20);
+      
+                    var left = bottom_left[0];
+                    var right = top_right[0];
+      
+                    canvas.fillStyle = "#F5A9A9";
+                    canvas.fillRect(left, area.y, right - left, area.h);
+                }
+            }
         }
     );
 }
@@ -167,17 +191,42 @@ App.prototype.applyConvert = function(sourceArray, sampledArray, graph, title, p
 
     var sampledExtrudedArray = this.extrudeArray(symbolsValues, app.samplingInterval);   
     var graphArray = this.arrayToDygraph(sourceArray, sampledExtrudedArray);
-    this.drawGraph(graph, graphArray, title);
+
+    app.log("Построение графика: " + title);
+    this.drawGraph(graph, graphArray, title, []);
+}
+
+App.prototype.applyClearLog = function()
+{
+    app.tarzanHistory.innerHTML = "";
+}
+
+App.prototype.log = function(str)
+{
+    if (str === "")
+    {
+        app.tarzanHistory.innerHTML += "<br>";
+        return;
+    }
+
+    var now = new Date();
+    app.tarzanHistory.innerHTML += 
+        (now.getMinutes() + ":" + now.getSeconds()) + " " + str + "<br>";
 }
 
 App.prototype.applyConvertAll = function()
 {
+    app.applyClearLog();
+    app.log("<b>Запущено конвертирование в символьные ряды<b>");
+
     var strSymCount = app.usingSymbolsCount.value;
     var symbolsCount = parseInt(strSymCount);
 
     if (isNaN(symbolsCount) || symbolsCount < 2 || symbolsCount > 26)
     {
-        alert("Ошибка в кол-ве используемых символов. Ожидается число от 2 до 27");
+        var msg = "Ошибка в кол-ве используемых символов. Ожидается число от 2 до 27";
+        app.log(msg);
+        alert(msg);
         return;
     }
 
@@ -186,7 +235,9 @@ App.prototype.applyConvertAll = function()
 
     if (isNaN(samplingInterval) || samplingInterval < 1)
     {
-        alert("Ошибка в интервале дискретизации. Ожидается число от 1");
+        var msg = "Ошибка в интервале дискретизации. Ожидается число от 1";
+        app.log(msg);
+        alert();
         return;
     }
 
@@ -195,6 +246,8 @@ App.prototype.applyConvertAll = function()
 
     var arrX = JSON.parse(app.discretizingTextAreaX.value);
     var arrR = JSON.parse(app.discretizingTextAreaR.value);
+
+    app.anomalyArrayX = arrX;
 
     var sampledX = app.sampleArray(arrX, app.samplingInterval);
     var sampledR = app.sampleArray(arrR, app.samplingInterval);
@@ -211,6 +264,10 @@ App.prototype.applyConvertAll = function()
     var minMaxInterval = minMax.max - minMax.min;
     var symbolStep = minMaxInterval / (app.symbolsCount - 1);
 
+    app.log("Мин. знач: " + minMax.min);
+    app.log("Макс. знач: " + minMax.max);
+    app.log("Шаг на 1 символ: " + symbolStep);
+
     app.symbolsData = app.generateSymbolsData(minMax, symbolStep);
     app.minMax = minMax;
     app.symbolStep = symbolStep;
@@ -225,11 +282,19 @@ App.prototype.applyConvertAll = function()
 
 App.prototype.buildTrees = function()
 {
+    app.log("<b>Построение деревьев<b>");
     app.treeBuilderX.buildTree();
     app.treeBuilderR.buildTree();
+    var anomalyList = tarzan(app.treeBuilderX.sTree, app.treeBuilderR.sTree);
+    
+    for(var i=0; i<anomalyList.length; i++)
+    {
+        var a = anomalyList[i];
+        a.start *= app.samplingInterval;
+    }
 
-    //var node = app.treeBuilderX.sTree.searchNode("bc");
-    //console.log(node);
+    var graphArray = this.arrayToDygraph(app.anomalyArrayX);
+    this.drawGraph(app.graphResults, graphArray, "Найденные аномалии", anomalyList);
 }
 
 App.prototype.resizeGraph = function(htmlElement)
@@ -249,6 +314,12 @@ $(document).ready(function()
     app.graphConvertDataSourceR = document.getElementById("graphConvertDataSourceR");
     app.wordsX = document.getElementById("wordsX");
     app.wordsR = document.getElementById("wordsR");
+    app.tarzanHistory = document.getElementById("tarzanHistory");
+    app.maxTarzanSequenceLength = document.getElementById("maxTarzanSequenceLength");
+    app.minTarzanSequenceLength = document.getElementById("minTarzanSequenceLength");
+    app.clearLog = document.getElementById("clearLog");
+    app.maxTarzanError = document.getElementById("maxTarzanError");
+    app.graphResults = document.getElementById("graphResults");
 
     document.getElementById("DiscretizingButton").className += " active";
 
@@ -271,21 +342,23 @@ $(document).ready(function()
 
     app.resizeGraph(app.graphConvertDataSourceX);
     app.resizeGraph(app.graphConvertDataSourceR);
+    app.resizeGraph(app.graphResults);
 
     app.discretizingTextAreaX.value=
     "[" +
-    "0.90,1.02,1.03,0.90,0.85,0.59,0.36,0.02,-0.19,-0.60,-0.71,-0.92,-1.07,-1.04,-0.82,-0.76,-0.51,-0.22,0.18,0.35,0.59,0.90,0.89,1.01,0.90,0.84,0.62,0.37,0.08,-0.27,-0.54,-0.76,-0.86,-1.04,-0.97,-0.86,-0.70,-0.42,-0.18,0.10,0.41,0.71,0.89,0.99,0.94,0.96,0.82,0.59,0.36,0.02,-0.22,-0.61,-0.73,-0.92,-1.04,-0.91,-0.80,-0.71,-0.38,-0.09,0.10,0.48,0.68,0.80,1.01,0.94,0.87,0.80,0.58,0.24,-0.06,-0.27,-0.64,-0.74,-0.94,-0.95,-1.03,-0.83,-0.73,-0.39,-0.10,0.15,0.40,0.64,0.86,0.91,1.02,0.94,0.77,0.55,0.21,-0.07,-0.39,-0.60,-0.75,-0.92,-0.98,-0.94,-0.89,-0.70,-0.36,-0.18,0.23,0.45,0.67,0.89,1.05,0.93,0.88,0.71,0.46,0.24,-0.07,-0.28,-0.63,-0.74,-0.99,-1.04,-0.99,-0.87,-0.62,-0.34,-0.17,0.14,0.42,0.70,0.87,1.03,1.01,0.96,0.67,0.57,0.26,0.01,-0.34,-0.55,-0.86,-0.92,-0.94,-0.88,-0.81,-0.57,-0.37,-0.03,0.16,0.57,0.71,0.85,0.94,0.99,0.85,0.78,0.46,0.21,-0.07,-0.30,-0.57,-0.80,-0.93,-0.96,-0.91,-0.86,-0.55,-0.32,0.01,0.18,0.53,0.79,0.83,0.96,0.96,0.88,0.74,0.49,0.23,-0.10,-0.35,-0.60,-0.77,-0.96,-0.93,-1.00,-0.77,-0.54,-0.40,-0.04,0.31,0.59,0.73,0.95,1.06,0.94,0.82,0.66,0.54,0.19,-0.10,-0.37,-0.60,-0.79,-0.97,-0.99,-0.98,-0.73,-0.67,-0.26,-0.07,0.33,0.59,0.78,0.86,1.01,0.98,0.88,0.72,0.38,0.13,-0.15,-0.48,-0.66,-0.89,-0.95,-1.00,-0.88,-0.77,-0.50,-0.35,0.01,0.32,0.53,0.77,0.98,1.06,0.97,0.80,0.75,0.38,0.20,-0.14,-0.46,-0.66,-0.92,-1.03,-1.01,-0.98,-0.76,-0.50,-0.28,0.02,0.24,0.55,0.80,0.91,0.96,1.00,0.85,0.69,0.37,0.15,-0.18,-0.42,-0.64,-0.81,-0.92"
+    "0.88,0.95,1.02,0.98,0.76,0.53,0.28,0.02,-0.32,-0.57,-0.80,-0.85,-0.92,-0.93,-0.84,-0.65,-0.49,-0.19,0.18,0.40,0.71,0.92,0.92,1.02,0.98,0.86,0.60,0.31,0.09,-0.34,-0.54,-0.78,-0.89,-0.96,-1.03,-0.86,-0.75,-0.40,-0.19,0.20,0.36,0.71,0.92,0.91,1.01,0.96,0.81,0.56,0.32,0.01,-0.28,-0.55,-0.84,-0.99,-0.97,-0.97,-0.81,-0.64,-0.45,-0.10,0.11,0.49,0.68,0.85,1.05,0.96,0.90,0.77,0.57,0.26,-0.01,-0.23,-0.58,-0.73,-0.89,-0.97,-1.04,-0.85,-0.68,-0.46,-0.12,0.10,0.52,0.65,0.94,1.02,0.97,0.94,0.72,0.61,0.29,-0.03,-0.29,-0.65,-0.95,-0.83,-0.52,-0.37,-0.02,0.21,0.55,0.76,0.98,1.01,0.95,0.92,0.73,0.50,0.18,-0.12,-0.37,-0.70,-0.89,-0.94,-0.54,-0.78,-1.02,-1.06,-1.02,-0.84,-0.70,-0.38,-0.17,0.23,0.46,0.78,0.88,0.91,1.03,0.88,0.72,0.59,0.24,-0.03,-0.36,-0.55,-0.87,-0.92,-0.95,-0.97,-0.89,-0.67,-0.42,-0.08,0.16,0.46,0.80,0.92,1.00,1.05,0.90,0.71,0.49,0.16,-0.10,-0.38,-0.69,-0.76,-0.95,-0.95,-0.90,-0.78,-0.57,-0.37,-0.10,0.22,0.49,0.80,0.95,0.95,1.00,0.94,0.73,0.48,0.20,-0.04,-0.37,-0.58,-0.81,-0.92,-0.96,-1.00,-0.88,-0.53,-0.27,-0.08,0.29,0.54,0.78,0.88,1.06,1.01,0.92,0.67,0.54,0.26,-0.10,-0.36,-0.65,-0.83,-1.02,-0.97,-0.94,-0.74,-0.63,-0.39,-0.07,0.24,0.48,0.77,0.87,1.04,1.00,0.90,0.67,0.40,0.18,-0.13,-0.40,-0.64,-0.80,-1.00,-1.03,-0.93,-0.83,-0.54,-0.27,0.00,0.22,0.57,0.79,0.89,1.00,0.92,0.86,0.71,0.44,0.20,-0.09,-0.39,-0.64,-0.84,-0.94,-1.00,-0.93,-0.72,-0.58,-0.27,-0.04,0.35,0.54,0.77,0.92,0.98,0.95,0.79,0.68,0.50,0.10,-0.13,-0.48,-0.74,-0.93,-1.01"
     + "]";
 
     app.discretizingTextAreaR.value=
     "[" +
-    "0.88,0.95,1.02,0.98,0.76,0.53,0.28,0.02,-0.32,-0.57,-0.80,-0.85,-0.92,-0.93,-0.84,-0.65,-0.49,-0.19,0.18,0.40,0.71,0.92,0.92,1.02,0.98,0.86,0.60,0.31,0.09,-0.34,-0.54,-0.78,-0.89,-0.96,-1.03,-0.86,-0.75,-0.40,-0.19,0.20,0.36,0.71,0.92,0.91,1.01,0.96,0.81,0.56,0.32,0.01,-0.28,-0.55,-0.84,-0.99,-0.97,-0.97,-0.81,-0.64,-0.45,-0.10,0.11,0.49,0.68,0.85,1.05,0.96,0.90,0.77,0.57,0.26,-0.01,-0.23,-0.58,-0.73,-0.89,-0.97,-1.04,-0.85,-0.68,-0.46,-0.12,0.10,0.52,0.65,0.94,1.02,0.97,0.94,0.72,0.61,0.29,-0.03,-0.29,-0.65,-0.95,-0.83,-0.52,-0.37,-0.02,0.21,0.55,0.76,0.98,1.01,0.95,0.92,0.73,0.50,0.18,-0.12,-0.37,-0.70,-0.89,-0.94,-0.54,-0.78,-1.02,-1.06,-1.02,-0.84,-0.70,-0.38,-0.17,0.23,0.46,0.78,0.88,0.91,1.03,0.88,0.72,0.59,0.24,-0.03,-0.36,-0.55,-0.87,-0.92,-0.95,-0.97,-0.89,-0.67,-0.42,-0.08,0.16,0.46,0.80,0.92,1.00,1.05,0.90,0.71,0.49,0.16,-0.10,-0.38,-0.69,-0.76,-0.95,-0.95,-0.90,-0.78,-0.57,-0.37,-0.10,0.22,0.49,0.80,0.95,0.95,1.00,0.94,0.73,0.48,0.20,-0.04,-0.37,-0.58,-0.81,-0.92,-0.96,-1.00,-0.88,-0.53,-0.27,-0.08,0.29,0.54,0.78,0.88,1.06,1.01,0.92,0.67,0.54,0.26,-0.10,-0.36,-0.65,-0.83,-1.02,-0.97,-0.94,-0.74,-0.63,-0.39,-0.07,0.24,0.48,0.77,0.87,1.04,1.00,0.90,0.67,0.40,0.18,-0.13,-0.40,-0.64,-0.80,-1.00,-1.03,-0.93,-0.83,-0.54,-0.27,0.00,0.22,0.57,0.79,0.89,1.00,0.92,0.86,0.71,0.44,0.20,-0.09,-0.39,-0.64,-0.84,-0.94,-1.00,-0.93,-0.72,-0.58,-0.27,-0.04,0.35,0.54,0.77,0.92,0.98,0.95,0.79,0.68,0.50,0.10,-0.13,-0.48,-0.74,-0.93,-1.01"
+    "0.90,1.02,1.03,0.90,0.85,0.59,0.36,0.02,-0.19,-0.60,-0.71,-0.92,-1.07,-1.04,-0.82,-0.76,-0.51,-0.22,0.18,0.35,0.59,0.90,0.89,1.01,0.90,0.84,0.62,0.37,0.08,-0.27,-0.54,-0.76,-0.86,-1.04,-0.97,-0.86,-0.70,-0.42,-0.18,0.10,0.41,0.71,0.89,0.99,0.94,0.96,0.82,0.59,0.36,0.02,-0.22,-0.61,-0.73,-0.92,-1.04,-0.91,-0.80,-0.71,-0.38,-0.09,0.10,0.48,0.68,0.80,1.01,0.94,0.87,0.80,0.58,0.24,-0.06,-0.27,-0.64,-0.74,-0.94,-0.95,-1.03,-0.83,-0.73,-0.39,-0.10,0.15,0.40,0.64,0.86,0.91,1.02,0.94,0.77,0.55,0.21,-0.07,-0.39,-0.60,-0.75,-0.92,-0.98,-0.94,-0.89,-0.70,-0.36,-0.18,0.23,0.45,0.67,0.89,1.05,0.93,0.88,0.71,0.46,0.24,-0.07,-0.28,-0.63,-0.74,-0.99,-1.04,-0.99,-0.87,-0.62,-0.34,-0.17,0.14,0.42,0.70,0.87,1.03,1.01,0.96,0.67,0.57,0.26,0.01,-0.34,-0.55,-0.86,-0.92,-0.94,-0.88,-0.81,-0.57,-0.37,-0.03,0.16,0.57,0.71,0.85,0.94,0.99,0.85,0.78,0.46,0.21,-0.07,-0.30,-0.57,-0.80,-0.93,-0.96,-0.91,-0.86,-0.55,-0.32,0.01,0.18,0.53,0.79,0.83,0.96,0.96,0.88,0.74,0.49,0.23,-0.10,-0.35,-0.60,-0.77,-0.96,-0.93,-1.00,-0.77,-0.54,-0.40,-0.04,0.31,0.59,0.73,0.95,1.06,0.94,0.82,0.66,0.54,0.19,-0.10,-0.37,-0.60,-0.79,-0.97,-0.99,-0.98,-0.73,-0.67,-0.26,-0.07,0.33,0.59,0.78,0.86,1.01,0.98,0.88,0.72,0.38,0.13,-0.15,-0.48,-0.66,-0.89,-0.95,-1.00,-0.88,-0.77,-0.50,-0.35,0.01,0.32,0.53,0.77,0.98,1.06,0.97,0.80,0.75,0.38,0.20,-0.14,-0.46,-0.66,-0.92,-1.03,-1.01,-0.98,-0.76,-0.50,-0.28,0.02,0.24,0.55,0.80,0.91,0.96,1.00,0.85,0.69,0.37,0.15,-0.18,-0.42,-0.64,-0.81,-0.92"
     + "]";
 
     app.applyConvertAll();
 
     $("#applyConvert").click(app.applyConvertAll);
     $("#applyTree").click(app.buildTrees);
+    $("#clearLog").click(app.applyClearLog);
 });
 
 var app = new App();

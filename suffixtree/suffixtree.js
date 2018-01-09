@@ -134,7 +134,7 @@ app.SuffixtreeJS = function(data)
 
 	nodeEnter.append("text")
 		.attr("x", function(d) { return d.children || d._children ? -13 : 13; })
-		.attr("dy", ".35em")
+		.attr("dy", ".5em")
 		.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
 		//.text(function(d) { return d.name+ (d.start?" ["+d.start + (d.seq ? ","+d.seq:"")+ "]":""); })
 		//.text(function(d) { return d.name + " " + d.leafChilds; })
@@ -147,7 +147,7 @@ app.SuffixtreeJS = function(data)
 		.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
 	nodeUpdate.select("circle")
-		.attr("r", 10)
+		.attr("r", 5)
 		.style("fill", function(d) { return d._children ? "#ddd" : "#fff"; })
 		.style("stroke", function(d) { return d._children ? "#bbb" : colorlist[d.seq]; });
 

@@ -12,6 +12,7 @@
         <script type="text/javascript" src="suffixtree/suffixtree.js"></script>
         <script type="text/javascript" src="elements/tabs/tabs.js"></script>
         <script type="text/javascript" src="lib/vis/dygraph.min.js"></script>
+        <script type="text/javascript" src="tarzan.js"></script>
 
         <link rel="stylesheet" type="text/css" href="style.css">
         <link rel="stylesheet" type="text/css" href="suffixtree/style.css">
@@ -26,13 +27,15 @@
                 <button id="DiscretizingButton" class="tablinks" onclick="OpenTab(event, 'Discretizing')">Конвертация</button>
                 <button class="tablinks" onclick="OpenTab(event, 'SourceData')">Символьные ряды</button>
                 <button class="tablinks" onclick="OpenTab(event, 'SuffixTree')">Суффиксные деревья</button>
+                <button class="tablinks" onclick="OpenTab(event, 'TarzanOptions')">Опции TARZAN</button>
+                <button class="tablinks" onclick="OpenTab(event, 'TarzanLog')">Операции в TARZAN</button>
                 <button class="tablinks" onclick="OpenTab(event, 'Links')">Ссылки</button>
             </div>
             <div id="Discretizing" class="tabcontent" style="display: block;">
                 <h3>Конвертация в символьные ряды</h3>
-                <p>Данные без аномалий (X)</p>
+                <p>Данные для поиска аномалий (X)</p>
                 <textarea id="discretizingTextAreaX"></textarea>
-                <p>Данные для поиска аномалий (R)</p>
+                <p>Данные без аномалий (R)</p>
                 <textarea id="discretizingTextAreaR"></textarea>
 
                 <p>Кол-во используемых символов (2-26)</p>
@@ -47,14 +50,15 @@
                 <br>
                 <div id="graphConvertDataSourceR"></div>
                 <br>
+                <div id="graphResults"></div>
             </div>
             <div id="SourceData" class="tabcontent">
                 <h3>Символьные ряды</h3>
-                <p>Символьный ряд X<p>
+                <p>Символьный ряд X (поиск аномалий)<p>
                 <div class="input">
                     <textarea id="wordsX" name="wordsX"></textarea>
                 </div>
-                <p>Символьный ряд R<p>
+                <p>Символьный ряд R (образец без аномалий)<p>
                 <div class="input">
                     <textarea id="wordsR" name="wordsR"></textarea>
                 </div>
@@ -69,6 +73,24 @@
                 <div id="errorWordsR" class="errorWords"></div>
                 <div id="suffixTreeR" class="graphOutput"> </div>
             </div>
+
+            <div id="TarzanOptions" class="tabcontent">
+                <h3>Настройки TARZAN</h3>
+                <p>Мин. длина подстроки для анализа</p>
+                <input id="minTarzanSequenceLength" value="3"></input>
+                <p>Макс. длина подстроки для анализа</p>
+                <input id="maxTarzanSequenceLength" value="6"></input>
+                <p>Отмечать аномлии с ожиданием ошибки более чем</p>
+                <input id="maxTarzanError" value="0.7"></input>
+            </div>
+
+            <div id="TarzanLog" class="tabcontent">
+                <h3>История выполнения алгоритма TARZAN</h3>
+                <button id="clearLog" class="applyBtn">Очистить</button>
+                <br>
+                <div id="tarzanHistory"></div>
+            </div>
+
             <div id="Links" class="tabcontent">
                 <h3>Ссылки на использованные работы / библиотеки</h3>
                 <ul>
@@ -79,7 +101,16 @@
                     <li>Библиотека для графиков: 
                         <a href="http://dygraphs.com/">http://dygraphs.com/</a>
                     </li>
-                    
+
+                    <li>Описание алгоритма TARZAN 
+                        <a href="https://blog.acolyer.org/2016/05/09/finding-surprising-patterns-in-a-time-series-database-in-linear-time-and-space/">https://blog.acolyer.org/2016/05/09/finding-surprising-patterns-in-a-time-series-database-in-linear-time-and-space/</a>
+                    </li>
+
+                    <li>Авторская статья про TARZAN 
+                        <a href="http://www.cs.ucr.edu/~eamonn/sigkdd_tarzan.pdf">http://www.cs.ucr.edu/~eamonn/sigkdd_tarzan.pdf</a>
+                    </li>
+
+                   
                 </ul>
                 <hr>
                 Солдаткин А.Н., УлГТУ 2018, ПИмд-21

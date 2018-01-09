@@ -6,6 +6,9 @@
 function UNode(){
     this.transition = {};
     this.suffixLink = null;
+    this.leafChilds = 0;
+    this.probability = 0;
+    this.surpriseScoreZ = 0;
 }
 
 UNode.prototype.addTransition = function(node, start, end, t) {
@@ -15,7 +18,6 @@ UNode.prototype.addTransition = function(node, start, end, t) {
 UNode.prototype.isLeaf = function() {
     return Object.keys(this.transition).length === 0;
 }
-
 
 function SuffixTree (){  
     this.text = '';
@@ -132,16 +134,14 @@ SuffixTree.prototype.canonize = function(s, k, p) {
 SuffixTree.prototype.finish = function()
 {
   this.countLeafChilds(this.root);
+  this.countProbability(this.root, "");
 }
 
+/**
+* @returns {UNode} tree
+*/
 SuffixTree.prototype.searchNode = function(str)
 {
-  for (var i=0; i<str.length; i++)
-  {
-    var s = str[i];
-    console.log(s);
-  }
-
   return this.CheckNodeForStr(str, this.root);
 }
 
@@ -149,7 +149,7 @@ SuffixTree.prototype.CheckNodeForStr = function(str, node)
 {
   //console.log("search " + str);
 
-  for(var t in node.transition) 
+  for (var t in node.transition) 
   {
     var traNs = node.transition[t];
     var s = traNs[0], a = traNs[1], b = traNs[2]; 
@@ -175,6 +175,34 @@ SuffixTree.prototype.CheckNodeForStr = function(str, node)
   return null;
 }
 
+/**
+* @param {UNode} node
+* @param {string} prevName
+*/
+SuffixTree.prototype.countProbability = function(node, prevName)
+{
+  for (var t in node.transition) 
+  {
+    var traNs = node.transition[t];
+    var s = traNs[0], a = traNs[1], b = traNs[2]; 
+    var name = this.text.substring(a, b + 1);
+
+    if (name[name.length - 1] === "#")
+      name = name.substring(0, name.length - 1);
+
+    if (name.length === 0)
+        continue;
+
+    name = prevName + name;
+
+    s.probability = s.leafChilds / (this.text.length - name.length + 1);
+    this.countProbability(s, name);
+  }
+}
+
+/**
+* @param {UNode} node
+*/
 SuffixTree.prototype.countLeafChilds = function(node)
 {
   var sum = 0;
@@ -205,8 +233,7 @@ SuffixTree.prototype.convertToJson = function(){
       "name" : "",
       "parent": "null",
       "suffix" : "",
-      "children": [],
-      "leafChilds": 0
+      "children": []
   }
 
   function traverse(node, seps, str_list, ret) {
@@ -229,8 +256,7 @@ SuffixTree.prototype.convertToJson = function(){
         "name" : name,
         "parent": ret['name'],
         "suffix" : suffix,
-        "children": [],
-        "leafChilds": s.leafChilds
+        "children": []
       };
       if (s.isLeaf()){
         cchild['seq'] = position +1;
