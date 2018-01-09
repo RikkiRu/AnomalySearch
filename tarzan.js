@@ -176,7 +176,7 @@ function tarzan(Tx, Tr)
             //nodeU.surpriseScoreZ = surpriseScoreZ;
 
             var errorChance = (nodeU.leafChilds - expectedOccurrences);
-            errorChance /= Math.max(Math.abs(nodeU.leafChilds), Math.abs(expectedOccurrences));
+            errorChance /= Math.abs(expectedOccurrences);
             errorChance = Math.abs(errorChance);
 
             app.log("");

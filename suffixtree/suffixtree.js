@@ -77,7 +77,7 @@ app.SuffixtreeJS = function(data)
 				root = treeData;
 			}
 
-			var maxSymbols = 30;
+			var maxSymbols = 100;
 
 			if (totalSymbols <= maxSymbols)
 			{
