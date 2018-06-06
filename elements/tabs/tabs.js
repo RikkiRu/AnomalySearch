@@ -19,3 +19,8 @@ function OpenTab(evt, tabName)
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 } 
+
+function Navigate(evt, pageName) 
+{
+    window.location.href = pageName;
+} 

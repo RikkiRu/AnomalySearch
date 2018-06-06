@@ -2,122 +2,39 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Поиск аномалий</title>
+        <title>Редактор правил</title>
 
         <script type="text/javascript" src="lib/jquery.min.js"></script>
-        <script type="text/javascript" src="lib/d3.min.js"></script>
-
-        <script type="text/javascript" src="main.js"></script>
-        <script type="text/javascript" src="suffixtree/ukkonen.js"></script>
-        <script type="text/javascript" src="suffixtree/suffixtree.js"></script>
-        <script type="text/javascript" src="elements/tabs/tabs.js"></script>
-        <script type="text/javascript" src="lib/vis/dygraph.min.js"></script>
-        <script type="text/javascript" src="tarzan.js"></script>
+        <script type="text/javascript" src="rulesEditor.js"></script>
         <script type="text/javascript" src="defaultData.js"></script>
+        <script type="text/javascript" src="elements/tabs/tabs.js"></script>
 
         <link rel="stylesheet" type="text/css" href="style.css">
-        <link rel="stylesheet" type="text/css" href="suffixtree/style.css">
         <link rel="stylesheet" type="text/css" href="elements/tabs/tabs.css">
-        <link rel="stylesheet" type="text/css" href="lib/vis/dygraph.css">
 
     </head>
     <body>
 
         <div id="mainContainer">
             <div class="tab">
-                <button id="DiscretizingButton" class="tablinks" onclick="OpenTab(event, 'Discretizing')">Конвертация</button>
-                <button class="tablinks" onclick="OpenTab(event, 'SourceData')">Символьные ряды</button>
-                <button class="tablinks" onclick="OpenTab(event, 'SuffixTree')">Суффиксные деревья</button>
-                <button class="tablinks" onclick="OpenTab(event, 'TarzanOptions')">Опции TARZAN</button>
-                <button class="tablinks" onclick="OpenTab(event, 'TarzanLog')">Операции в TARZAN</button>
-                <button class="tablinks" onclick="OpenTab(event, 'Links')">Ссылки</button>
-            </div>
-            <div id="Discretizing" class="tabcontent" style="display: block;">
-                <h3>Конвертация в символьные ряды</h3>
-                <p>Данные для поиска аномалий (X)</p>
-                <textarea id="discretizingTextAreaX"></textarea>
-                <p>Данные без аномалий (R)</p>
-                <textarea id="discretizingTextAreaR"></textarea>
-
-                <p>Кол-во используемых символов (2-26)</p>
-                <input id="usingSymbolsCount" value="10"></input>
-
-                <p>Интервал дискретизации</p>
-                <input id="usingSamplingInterval" value="10"></input>
-
-                <button id="applyConvert" class="applyBtn">Применить</button>
-                <br>
-                <div id="graphConvertDataSourceX"></div>
-                <br>
-                <div id="graphConvertDataSourceR"></div>
-                <br>
-                <div id="graphResults"></div>
-            </div>
-            <div id="SourceData" class="tabcontent">
-                <h3>Символьные ряды</h3>
-                <p>Символьный ряд X (поиск аномалий)<p>
-                <div class="input">
-                    <textarea id="wordsX" name="wordsX"></textarea>
-                </div>
-                <p>Символьный ряд R (образец без аномалий)<p>
-                <div class="input">
-                    <textarea id="wordsR" name="wordsR"></textarea>
-                </div>
-                <button id="applyTree" class="applyBtn">Применить</button>
-            </div>
-            <div id="SuffixTree" class="tabcontent">
-                <h3>Суффиксные деревья</h3>
-                <p>Визуализация суффиксного дерева X</p>
-                <div id="errorWordsX" class="errorWords"></div>
-                <div id="suffixTreeX" class="graphOutput"> </div>
-                <p>Визуализация суффиксного дерева R</p>
-                <div id="errorWordsR" class="errorWords"></div>
-                <div id="suffixTreeR" class="graphOutput"> </div>
+                <button id="LoadDataButton" class="tablinks" onclick="OpenTab(event, 'LoadData')">Загрузка данных</button>
+                <button class="tablinks" onclick="OpenTab(event, 'EditRules')">Редактор правил</button>
+                <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
+                <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
 
-            <div id="TarzanOptions" class="tabcontent">
-                <h3>Настройки TARZAN</h3>
-                <p>Мин. длина подстроки для анализа</p>
-                <input id="minTarzanSequenceLength" value="1"></input>
-                <p>Макс. длина подстроки для анализа</p>
-                <input id="maxTarzanSequenceLength" value="45"></input>
-                <p>Отмечать аномлии с ожиданием ошибки более чем</p>
-                <input id="maxTarzanError" value="0.7"></input>
+            <div id="LoadData" class="tabcontent" style="display: block;">
+                <h3>Загрузка исходных данных</h3>
+                <p>Введите данные</p>
+                <textarea id="loadData"></textarea>
             </div>
 
-            <div id="TarzanLog" class="tabcontent">
-                <h3>История выполнения алгоритма TARZAN</h3>
-                <button id="clearLog" class="applyBtn">Очистить</button>
-                <br>
-                <div id="tarzanHistory"></div>
+            <div id="EditRules" class="tabcontent">
+                <h3>Редактор правил</h3>
             </div>
 
-            <div id="Links" class="tabcontent">
-                <h3>Ссылки на использованные работы / библиотеки</h3>
-                <ul>
-                    <li>Построение суффиксного дерева (Алгоритм Укконена): 
-                        <a href="https://github.com/maclandrol/SuffixTreeJS">https://github.com/maclandrol/SuffixTreeJS</a>
-                    </li>
-                    
-                    <li>Библиотека для графиков: 
-                        <a href="http://dygraphs.com/">http://dygraphs.com/</a>
-                    </li>
-
-                    <li>Описание алгоритма TARZAN 
-                        <a href="https://blog.acolyer.org/2016/05/09/finding-surprising-patterns-in-a-time-series-database-in-linear-time-and-space/">https://blog.acolyer.org/2016/05/09/finding-surprising-patterns-in-a-time-series-database-in-linear-time-and-space/</a>
-                    </li>
-
-                    <li>Авторская статья про TARZAN 
-                        <a href="http://www.cs.ucr.edu/~eamonn/sigkdd_tarzan.pdf">http://www.cs.ucr.edu/~eamonn/sigkdd_tarzan.pdf</a>
-                    </li>
-
-                    <li>Исходные данные кардиограммы
-                        <a href="http://www.shimmersensing.com/support/sample-data/">http://www.shimmersensing.com/support/sample-data/</a>
-                    </li>
-                   
-                </ul>
-                <hr>
-                Солдаткин А.Н., УлГТУ 2018, ПИмд-21
+            <div id="ConvertData" class="tabcontent">
+                 <h3>Преобразование</h3>
             </div>
         </div>
 
