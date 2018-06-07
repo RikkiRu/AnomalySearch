@@ -18,7 +18,9 @@
         <div id="mainContainer">
             <div class="tab">
                 <button id="LoadDataButton" class="tablinks" onclick="OpenTab(event, 'LoadData')">Загрузка данных</button>
-                <button class="tablinks" onclick="OpenTab(event, 'EditRules')">Редактор правил</button>
+                <button class="tablinks" onclick="OpenTab(event, 'RulesSet')">Набор правил</button>
+                <button class="tablinks" onclick="OpenTab(event, 'EditRule')">Редакировать правило</button>
+                <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редакировать условие</button>
                 <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
                 <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
@@ -29,8 +31,48 @@
                 <textarea id="loadData"></textarea>
             </div>
 
-            <div id="EditRules" class="tabcontent">
-                <h3>Редактор правил</h3>
+            <div id="RulesSet" class="tabcontent">
+                    <h3>Набор правил</h3>
+                </div>
+
+            <div id="EditRule" class="tabcontent">
+                <h3>Редакировать правило</h3>
+                <p>ID</p>
+                <input id="elementRuleID" value="0"></input>
+                <div id="ruleConditions"></div>
+                <button id="addCondition">Добавить условие</button>
+                <button id="applyRule">Применить</button>
+            </div>
+
+            <div id="EditCondition" class="tabcontent">
+                <h3>Редакировать условие</h3>
+
+                <p>ID</p>
+                <input id="conditionIDInput" value="0"></input>
+                <br>
+
+                <p>Поле</p>
+                <input id="conditionFieldInput"></input>
+                <br>
+
+                <br>
+
+                <input type="radio" id="conditionRadioRange" name="conditionRadioType"> Принадлежит диапазону <br>
+                <input type="radio" id="conditionRadioNotRange" name="conditionRadioType"> Не принадлежит диапазону <br>
+                <input type="radio" id="conditionRadioEquals" name="conditionRadioType"> Равно <br>
+                <input type="radio" id="conditionRadioNotEquals" name="conditionRadioType"> Не равно <br>
+                
+                <p id="conditionMinP">Min</p>
+                <input id="conditionMinInput"></input>
+                <p id="conditionMaxP">Max</p>
+                <input id="conditionMaxInput"></input>
+                <p id="conditionValueP">Значение</p>
+                <input id="conditionValueInput"></input>
+                <br>
+
+                <button id="applyCondition">Применить</button>
+                <p id="conditionApplyFeedback">Применено</p>
+
             </div>
 
             <div id="ConvertData" class="tabcontent">

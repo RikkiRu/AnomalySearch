@@ -17,7 +17,9 @@ function OpenTab(evt, tabName)
 
     // Show the current tab, and add an "active" class to the link that opened the tab
     document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
+
+    if (evt != null)
+        evt.currentTarget.className += " active";
 } 
 
 function Navigate(evt, pageName) 
