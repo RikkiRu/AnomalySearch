@@ -21,7 +21,7 @@ var ConditionType =
 function Condition()
 {
     /** @type {number} */ this.ID = 0;
-    /** @type {ConditionType} */ this.conditionType = ConditionType.None;
+    /** @type {ConditionType} */ this.conditionType = ConditionType.Equals;
     /** @type {number} */ this.min = 0;
     /** @type {number} */ this.max = 0;
     /** @type {string} */ this.value = "";
@@ -47,10 +47,8 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.ruleConditions = null;
     /** @type {HTMLElement} */ this.addCondition = null;
     /** @type {HTMLElement} */ this.applyRule = null;
-    /** @type {HTMLElement} */ this.revertRule = null;
 
     /** @type {HTMLElement} */ this.applyCondition = null;
-    /** @type {HTMLElement} */ this.revertCondition = null;
     /** @type {HTMLElement} */ this.conditionRadioRange = null;
     /** @type {HTMLElement} */ this.conditionRadioNotRange = null;
     /** @type {HTMLElement} */ this.conditionRadioEquals = null;
@@ -66,6 +64,7 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.conditionIDInput = null;
 
     /** @type {number} */ this.ruleID = -1;
+    /** @type {number[]} */ this.ruleTempConditions = [];
 
     /** @type {number} */ this.conditionID = -1;
     /** @type {ConditionType} */ this.conditionType = ConditionType.None;
@@ -83,7 +82,121 @@ function RuleEditor()
      /** @type {any} */
      var e = editor.elementRuleID;
      e.value = editor.ruleID;
+
+     editor.ruleConditions.innerHTML = "<br>";
+
+     for (var i=0; i<editor.ruleTempConditions.length; i++)
+     {
+        var t = i;
+        var conditionID = editor.ruleTempConditions[t];
+        //editor.ruleConditions.innerHTML += conditionID + " ";
+
+        var condition = editor.FindCondition(editor, conditionID);
+
+        if (condition == null)
+            throw new Error("Condition not found: " + conditionID);
+
+        //editor.ruleConditions.innerHTML += condition.conditionField;
+
+        switch(condition.conditionType)
+        {
+            case ConditionType.None:
+                throw new Error("Unexected condition type");
+            case ConditionType.Equals:
+                //editor.ruleConditions.innerHTML += "=" + condition.value;
+                break;
+            case ConditionType.NotEquals:
+                //editor.ruleConditions.innerHTML += "!=" + condition.value;
+                break;
+            case ConditionType.Range:
+                //editor.ruleConditions.innerHTML += "IN [" + condition.min.toString() + ".." + condition.max.toString() + "]";
+                break;
+            case ConditionType.NotRange:
+                //editor.ruleConditions.innerHTML += "NOT IN [" + condition.min.toString() + ".." + condition.max.toString() + "]";
+                break;
+        }
+
+        //editor.ruleConditions.innerHTML += "<br>"
+
+        var buttonEdit = document.createElement("button");
+        buttonEdit.addEventListener("click", 
+            function() { 
+                console.log("edit " + conditionID);
+                var condition = editor.FindCondition(editor, conditionID);
+                editor.SwitchToCondtion(editor, condition);
+                OpenTab(null, 'EditCondition');
+             });
+        buttonEdit.innerHTML = "Редактировать " + conditionID;
+        editor.ruleConditions.appendChild(buttonEdit);
+
+        var buttonRemove = document.createElement("button");
+        buttonRemove.addEventListener("click", 
+            function() { 
+
+                for(var p=0; p<editor.json.conditions.length; p++)
+                {
+                    var c = editor.json.conditions[p];
+
+                    if(c.ID === conditionID)
+                    {
+                        editor.json.conditions.splice(p, 1);
+                    }
+                }
+
+                for(var p=0; p<editor.ruleTempConditions.length; p++)
+                {
+                    var tempID = editor.ruleTempConditions[p];
+
+                    if(tempID === conditionID)
+                    {
+                        editor.ruleTempConditions.splice(p, 1);
+                    }
+                }
+
+                editor.ApplyRule(editor);
+             });
+        buttonRemove.innerHTML = "Удалить " + conditionID;
+        editor.ruleConditions.appendChild(buttonRemove);
+
+        //editor.ruleConditions.innerHTML += "<hr>"
+     }
  }
+
+/** @param {RuleEditor} editor */
+RuleEditor.prototype.ApplyRule = function(editor)
+{
+    /** @type {any} */
+    var idInput = editor.elementRuleID;
+
+    var id = parseInt(idInput.value);
+    if (isNaN(id))
+        id = -1;
+
+    editor.ruleID = id;
+
+    var rule = editor.FindRule(editor, id);
+
+    if (rule == null)
+    {
+        rule = new Rule();
+
+        editor.json.rulesCounter++;
+        id = editor.json.rulesCounter;
+        editor.ruleID = id;
+        rule.ID = id;
+
+        editor.json.rules.push(rule);
+    }
+
+    rule.conditions = [];
+
+    for (var i=0; i<editor.ruleTempConditions.length; i++)
+    {
+        rule.conditions.push(editor.ruleTempConditions[i]);
+    }
+
+    editor.RefreshEditRule(editor);
+}
 
 /** @param {RuleEditor} editor */
 RuleEditor.prototype.RefreshEditCondition = function(editor)
@@ -160,8 +273,29 @@ RuleEditor.prototype.RefreshEditCondition = function(editor)
     }
 }
 
- RuleEditor.prototype.AddCondition = function()
+ /** @param {RuleEditor} editor */
+ /** @param {Condition} condition */
+RuleEditor.prototype.SwitchToCondtion = function(editor, condition)
+{
+    editor.conditionID = condition.ID;
+    editor.conditionType = condition.conditionType;
+    editor.conditionField = condition.conditionField;
+    editor.conditionMin = condition.min;
+    editor.conditionMax = condition.max;
+    editor.conditionValue = condition.value;
+    editor.RefreshEditCondition(editor);
+}
+
+ /** @param {RuleEditor} editor */
+ RuleEditor.prototype.AddCondition = function(editor)
  {
+    var c = new Condition();
+    editor.json.conditionsCounter++;
+    c.ID = editor.json.conditionsCounter;
+    editor.json.conditions.push(c);
+    editor.ruleTempConditions.push(c.ID);
+    editor.ApplyRule(editor);
+    editor.SwitchToCondtion(editor, c);
     OpenTab(null, 'EditCondition');
  }
 
@@ -172,6 +306,22 @@ RuleEditor.prototype.SwitchConditionType = function(editor, type)
     editor.conditionType = type;
     editor.RefreshEditCondition(editor);
 }
+
+ /** @param {RuleEditor} editor */
+ /** @param {number} ID */
+ /** @returns {Rule} */
+ RuleEditor.prototype.FindRule = function(editor, ID)
+ {
+     for (var i=0; i<editor.json.rules.length; i++)
+     {
+         var rule = editor.json.rules[i];
+ 
+         if (rule.ID === ID)
+             return rule;
+     }
+ 
+     return null;
+ }
 
  /** @param {RuleEditor} editor */
  /** @param {number} ID */
@@ -207,9 +357,10 @@ RuleEditor.prototype.FindCondition = function(editor, ID)
     if (isNaN(id))
         id = -1;
 
-    editor.conditionID = id;
-    editor.conditionField = conditionFieldInput.value;
-    editor.conditionValue = conditionValueInput.value;
+    var condition = editor.FindCondition(editor, id);
+
+    if (condition == null)
+        throw new Error("Condition not found: " + id);
 
     var min = parseFloat(conditionMinInput.value);
     var max = parseFloat(conditionMaxInput.value);
@@ -222,29 +373,14 @@ RuleEditor.prototype.FindCondition = function(editor, ID)
 
     if (max < min)
         max = min;
-
-    editor.conditionMin = min;
-    editor.conditionMax = max;
-   
-    var condition = editor.FindCondition(editor, id);
-
-    if (condition == null)
-    {
-        condition = new Condition();
-
-        editor.json.conditionsCounter++;
-        id = editor.json.conditionsCounter;
-        editor.conditionID = id;
-        condition.ID = id;
-
-        editor.json.conditions.push(condition);
-    }
     
     condition.min = min;
     condition.max = max;
-    condition.value = editor.conditionValue;
+    condition.value =  conditionValueInput.value;
     condition.conditionType = editor.conditionType;
-    condition.conditionField = editor.conditionValue;
+    condition.conditionField = conditionFieldInput.value;
+
+    editor.SwitchToCondtion(editor, condition);
 
     editor.RefreshEditCondition(editor);
     $("#conditionApplyFeedback").show();
@@ -259,10 +395,8 @@ $(document).ready(function()
     editor.ruleConditions = document.getElementById("ruleConditions");
     editor.addCondition = document.getElementById("addCondition");
     editor.applyRule = document.getElementById("applyRule");
-    editor.revertRule = document.getElementById("revertRule");
 
     editor.applyCondition = document.getElementById("applyCondition");
-    editor.revertCondition = document.getElementById("revertCondition");
     editor.conditionRadioRange = document.getElementById("conditionRadioRange");
     editor.conditionRadioNotRange = document.getElementById("conditionRadioNotRange");
     editor.conditionRadioEquals = document.getElementById("conditionRadioEquals");
@@ -283,7 +417,7 @@ $(document).ready(function()
     editor.RefreshEditCondition(editor);
 
     editor.addCondition.addEventListener("click", 
-        function() { editor.AddCondition(); });
+        function() { editor.AddCondition(editor); });
 
     editor.conditionRadioRange.addEventListener("click", 
         function() { editor.SwitchConditionType(editor, ConditionType.Range) });
@@ -295,6 +429,8 @@ $(document).ready(function()
         function() { editor.SwitchConditionType(editor, ConditionType.NotEquals) });
     editor.applyCondition.addEventListener("click", 
         function() { editor.ApplyCondition(editor); });
+    editor.applyRule.addEventListener("click", 
+        function() { editor.ApplyRule(editor); });
 
     $("#conditionApplyFeedback").hide();
 });
