@@ -78,6 +78,8 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.splitResultText = null;
     /** @type {HTMLElement} */ this.associationsMinSupport = null;
     /** @type {HTMLElement} */ this.associationsMinConfidience = null;
+    /** @type {HTMLElement} */ this.clustersButton = null;
+    /** @type {HTMLElement} */ this.clusterResults = null;
 
     /** @type {number} */ this.ruleID = -1;
     /** @type {string} */ this.ruleSymbol = "";
@@ -823,6 +825,56 @@ RuleEditor.prototype.RunSplit = function(editor)
     editor.splitResultText.innerHTML = log;
 }
 
+/** @param {RuleEditor} editor */
+RuleEditor.prototype.RunClusters = function(editor)
+{
+console.log($("#clusterFields"));
+
+    var fields = $("#clusterFields")[0].value.split(" ");
+
+
+
+    var data = [];
+
+    for(var i=0; i<SplitResults.length; i++)
+    {
+        var splRes = SplitResults[i];
+        var arr = [];
+
+        for(var d=0; d<fields.length; d++)
+        {
+            var f = fields[d];
+            var n = 0;
+
+            for(var j=0; j<splRes.results.length; j++)
+            {
+                var res = splRes.results[j];
+                if(res.rule.symbol ==  f)
+                    n=1;
+            }
+
+            arr.push(n);
+        }
+
+        console.log(splRes.fieldValue + " " + JSON.stringify(arr));
+
+        data.push(arr);
+    }
+
+    kmeansModule.data(data);
+    var t  = kmeansModule.clusters();
+    console.log();
+
+    var log = "";
+    for(var i=0; i<t.length; i++)
+    {
+        log += "Cluster " + JSON.stringify(t[i].centroid) + " " + JSON.stringify(t[i].points) + "<br>";
+    }
+
+    editor.clusterResults.innerHTML = log;
+
+}
+
 $(document).ready(function() 
 {
     editor.LoadDataButton = document.getElementById("LoadDataButton");
@@ -861,6 +913,8 @@ $(document).ready(function()
     editor.splitResultText =  document.getElementById("splitResultText");
     editor.associationsMinSupport = document.getElementById("associationsMinSupport");
     editor.associationsMinConfidience = document.getElementById("associationsMinConfidience");
+    editor.clustersButton = document.getElementById("clustersButton");
+    editor.clusterResults = document.getElementById("clusterResults");
 
     editor.LoadDataButton.className += " active";
 
@@ -897,6 +951,8 @@ $(document).ready(function()
         function() { editor.RunAssociations(editor); });
     editor.splitButton.addEventListener("click", 
         function() { editor.RunSplit(editor); });
+    editor.clustersButton.addEventListener("click", 
+        function() { editor.RunClusters(editor); });
 
     /** @type {any} */
     var testDataTextAreaAny = editor.testDataTextArea;

@@ -6,6 +6,7 @@
 
         <script type="text/javascript" src="lib/jquery.min.js"></script>
         <script type="text/javascript" src="lib/apriori.js"></script>
+        <script type="text/javascript" src="lib/clusters.js"></script>
         <script type="text/javascript" src="rulesEditor.js"></script>
         <script type="text/javascript" src="defaultData.js"></script>
         <script type="text/javascript" src="elements/tabs/tabs.js"></script>
@@ -24,6 +25,7 @@
                 <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редактировать условие</button>
                 <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
                 <button class="tablinks" onclick="OpenTab(event, 'TabAssociations')">Ассоциации</button>
+                <button class="tablinks" onclick="OpenTab(event, 'TabClusters')">Кластеризация</button>
                 <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
 
@@ -107,6 +109,13 @@
                 <button id="associationsButton">Выполнить</button>
                 <p id="associationResults"></p>
            </div>
+
+           <div id="TabClusters" class="tabcontent">
+            <h3>Кластеризация</h3>
+            <button id="clustersButton">Выполнить</button>
+            <input id="clusterFields"></input>
+            <p id="clusterResults"></p>
+            </div>
         </div>
 
     </body>
