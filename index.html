@@ -5,6 +5,7 @@
         <title>Редактор правил</title>
 
         <script type="text/javascript" src="lib/jquery.min.js"></script>
+        <script type="text/javascript" src="lib/apriori.js"></script>
         <script type="text/javascript" src="rulesEditor.js"></script>
         <script type="text/javascript" src="defaultData.js"></script>
         <script type="text/javascript" src="elements/tabs/tabs.js"></script>
@@ -19,8 +20,8 @@
             <div class="tab">
                 <button id="LoadDataButton" class="tablinks" onclick="OpenTab(event, 'LoadData')">Загрузка данных</button>
                 <button class="tablinks" onclick="OpenTab(event, 'RulesSet')">Набор правил</button>
-                <button class="tablinks" onclick="OpenTab(event, 'EditRule')">Редакировать правило</button>
-                <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редакировать условие</button>
+                <button class="tablinks" onclick="OpenTab(event, 'EditRule')">Редактировать правило</button>
+                <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редактировать условие</button>
                 <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
                 <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
@@ -33,19 +34,32 @@
 
             <div id="RulesSet" class="tabcontent">
                     <h3>Набор правил</h3>
-                </div>
+                    <div id="rulesOrderDiv"></div>
+                    <br>
+                    <button id="addRuleButton">Добавить правило</button>
+                    <button id="saveJsonButton">Сохранить правила</button>
+                    <button id="loadJsonButton">Загрузить правила</button>
+
+                    <p>Проверка правил</p>
+                    <textarea id="testDataTextArea"></textarea>
+                    <button id="testDataButton">Проверить</button>
+                    <p id="testDataresult"></p>
+            </div>
 
             <div id="EditRule" class="tabcontent">
-                <h3>Редакировать правило</h3>
+                <h3>Редактировать правило</h3>
                 <p>ID</p>
                 <input disabled="true" id="elementRuleID" value="0"></input>
+                <p>Символ</p>
+                <input id="ruleSymbolInput" value="0"></input>
                 <div id="ruleConditions"></div>
+                <br><br>
                 <button id="addCondition">Добавить условие</button>
                 <button id="applyRule">Применить</button>
             </div>
 
             <div id="EditCondition" class="tabcontent">
-                <h3>Редакировать условие</h3>
+                <h3>Редактировать условие</h3>
 
                 <p>ID</p>
                 <input disabled="true" id="conditionIDInput" value="0"></input>
@@ -77,6 +91,8 @@
 
             <div id="ConvertData" class="tabcontent">
                  <h3>Преобразование</h3>
+                 <button id="convertionButton">Выполнить</button>
+                 <p id="convertionResultText"></p>
             </div>
         </div>
 
