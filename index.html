@@ -23,6 +23,7 @@
                 <button class="tablinks" onclick="OpenTab(event, 'EditRule')">Редактировать правило</button>
                 <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редактировать условие</button>
                 <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
+                <button class="tablinks" onclick="OpenTab(event, 'TabAssociations')">Ассоциации</button>
                 <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
 
@@ -93,7 +94,19 @@
                  <h3>Преобразование</h3>
                  <button id="convertionButton">Выполнить</button>
                  <p id="convertionResultText"></p>
+                 <p>Разбить по полю</p>
+                 <input id="splitInput" value="user"></input>
+                 <button id="splitButton">Разбить</button>
+                 <p id="splitResultText"></p>
             </div>
+
+            <div id="TabAssociations" class="tabcontent">
+                <h3>Поиск ассоциаций</h3>
+                Min. Confidence
+                <input id="associationsMinConfidience" value="0.6"></input>
+                <button id="associationsButton">Выполнить</button>
+                <p id="associationResults"></p>
+           </div>
         </div>
 
     </body>

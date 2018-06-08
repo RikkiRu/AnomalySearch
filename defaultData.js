@@ -11,6 +11,7 @@ var logsExample = [
     {"time": 10, "user": 1, "event": "openPage", "page": "product", "cost": 500},
     {"time": 11, "user": 1, "event": "buy", "cost": 500},
     {"time": 12, "user": 1, "event": "sessionEnd"},
+
     {"time": 13, "user": 2, "event": "sessionStart"},
     {"time": 14, "user": 2, "event": "openPage", "page": "main"},
     {"time": 15, "user": 2, "event": "openPage", "page": "product", "cost": 90},
@@ -23,11 +24,34 @@ var logsExample = [
     {"time": 22, "user": 2, "event": "openPage", "page": "product", "cost": 400},
     {"time": 23, "user": 2, "event": "buy", "cost": 400},
     {"time": 24, "user": 2, "event": "sessionEnd"},
+
     {"time": 25, "user": 3, "event": "sessionStart"},
     {"time": 26, "user": 3, "event": "openPage", "page": "adv"},
     {"time": 27, "user": 3, "event": "openPage", "page": "product", "cost": 600},
     {"time": 28, "user": 3, "event": "buy", "cost": 600},
     {"time": 29, "user": 3, "event": "sessionEnd"},
+
+    {"time": 30, "user": 4, "event": "sessionStart"},
+    {"time": 31, "user": 4, "event": "openPage", "page": "main"},
+    {"time": 32, "user": 4, "event": "openPage", "page": "product", "cost": 100},
+    {"time": 33, "user": 4, "event": "buy", "cost": 100},
+    {"time": 34, "user": 4, "event": "sessionEnd"},
+
+    {"time": 35, "user": 5, "event": "sessionStart"},
+    {"time": 36, "user": 5, "event": "openPage", "page": "main"},
+    {"time": 37, "user": 5, "event": "openPage", "page": "product", "cost": 90},
+    {"time": 38, "user": 5, "event": "openPage", "page": "main"},
+    {"time": 39, "user": 5, "event": "openPage", "page": "product", "cost": 120},
+    {"time": 40, "user": 5, "event": "buy", "cost": 120},
+    {"time": 41, "user": 5, "event": "sessionEnd"},
+    {"time": 42, "user": 5, "event": "sessionStart"},
+    {"time": 43, "user": 5, "event": "openPage", "page": "main"},
+    {"time": 44, "user": 5, "event": "openPage", "page": "product", "cost": 400},
+    {"time": 45, "user": 5, "event": "buy", "cost": 400},
+    {"time": 46, "user": 5, "event": "openPage", "page": "main"},
+    {"time": 47, "user": 5, "event": "openPage", "page": "product", "cost": 500},
+    {"time": 48, "user": 5, "event": "buy", "cost": 500},
+    {"time": 49, "user": 5, "event": "sessionEnd"},
 ];
 
 function applyDefaultData(app)

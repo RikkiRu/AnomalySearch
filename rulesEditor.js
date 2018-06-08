@@ -45,17 +45,14 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.LoadDataButton = null;
     /** @type {HTMLElement} */ this.elementRuleID = null;
     /** @type {HTMLElement} */ this.loadDataArea = null;
-
     /** @type {HTMLElement} */ this.ruleConditions = null;
     /** @type {HTMLElement} */ this.addCondition = null;
     /** @type {HTMLElement} */ this.applyRule = null;
-
     /** @type {HTMLElement} */ this.applyCondition = null;
     /** @type {HTMLElement} */ this.conditionRadioRange = null;
     /** @type {HTMLElement} */ this.conditionRadioNotRange = null;
     /** @type {HTMLElement} */ this.conditionRadioEquals = null;
     /** @type {HTMLElement} */ this.conditionRadioNotEquals = null;
-
     /** @type {HTMLElement} */ this.conditionMinP = null;
     /** @type {HTMLElement} */ this.conditionMinInput = null;
     /** @type {HTMLElement} */ this.conditionMaxP = null;
@@ -64,20 +61,23 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.conditionValueInput = null;
     /** @type {HTMLElement} */ this.conditionFieldInput = null;
     /** @type {HTMLElement} */ this.conditionIDInput = null;
-
     /** @type {HTMLElement} */ this.rulesOrderDiv = null;
     /** @type {HTMLElement} */ this.addRuleButton = null;
     /** @type {HTMLElement} */ this.ruleSymbolInput = null;
-
     /** @type {HTMLElement} */ this.saveJsonButton = null;
     /** @type {HTMLElement} */ this.loadJsonButton = null;
-
     /** @type {HTMLElement} */ this.testDataTextArea = null;
     /** @type {HTMLElement} */ this.testDataButton = null;
     /** @type {HTMLElement} */ this.testDataresult = null;
-
     /** @type {HTMLElement} */ this.convertionButton = null;
     /** @type {HTMLElement} */ this.convertionResultText = null;
+    /** @type {HTMLElement} */ this.associationsButton = null;
+    /** @type {HTMLElement} */ this.associationResults = null;
+    /** @type {HTMLElement} */ this.splitInput = null;
+    /** @type {HTMLElement} */ this.splitButton = null;
+    /** @type {HTMLElement} */ this.splitResultText = null;
+    /** @type {HTMLElement} */ this.associationsMinSupport = null;
+    /** @type {HTMLElement} */ this.associationsMinConfidience = null;
 
     /** @type {number} */ this.ruleID = -1;
     /** @type {string} */ this.ruleSymbol = "";
@@ -662,6 +662,16 @@ RuleEditor.prototype.ProcessData = function(editor, data)
 /** @type {ParseResult[]} */
 var ParseResults = [];
 
+/** @type {SplitResult[]} */
+var SplitResults = [];
+
+/** @class */
+function SplitResult()
+{
+    /** @type {any} */ this.fieldValue = null;
+    /** @type {ParseResult[]} */ this.results = null;
+}
+
 /** @class */
 function ParseResult()
 {
@@ -701,22 +711,131 @@ RuleEditor.prototype.RunConvertion = function(editor)
     }
 }
 
+/** @param {RuleEditor} editor */
+RuleEditor.prototype.RunAssociations = function(editor)
+{
+    //var transactions = [["a", "b", "c"], ["a", "b", "c"], ["a", "b", "d"]];
+
+    var support = 0; // parseFloat(editor.associationsMinSupport.value);
+    var confidence = parseFloat(editor.associationsMinConfidience.value);
+
+    var transactions = [];
+
+    for(var i=0; i<SplitResults.length; i++)
+    {
+        var splRes = SplitResults[i];
+
+        var arr = [];
+
+        for(var j=0; j<splRes.results.length; j++)
+        {
+            var n = splRes.results[j];
+            arr.push(n.rule.symbol);
+        }
+
+        transactions.push(arr);
+        console.log(arr);
+    }
+
+    //minSupport, minConfidence
+    var apriori = new Apriori.Algorithm(support, confidence);
+    var result = apriori.analyze(transactions);
+
+    console.log(result);
+
+    var log = "";
+
+    for(var i=0; i<result.associationRules.length; i++)
+    {
+        var aRule = result.associationRules[i];
+        log += aRule.confidence + ": ";
+
+        for(var j=0; j<aRule.lhs.length; j++)
+        {
+            log += aRule.lhs[j] + " ";
+        }
+
+        for(var j=0; j<aRule.rhs.length; j++)
+        {
+            log += aRule.rhs[j] + " ";
+        }
+
+        log+="<br>";
+    }
+
+    editor.associationResults.innerHTML = log;
+
+    //assert.equal(5, result.associationRules.length);
+    //new Apriori.Algorithm(0.15, 0.6, false).showAnalysisResultFromFile('dataset.csv');
+}
+
+/** @param {RuleEditor} editor */
+RuleEditor.prototype.RunSplit = function(editor)
+{
+    /** @type {any} */
+    var filedName = editor.splitInput.value;
+
+    SplitResults = [];
+
+    for(var i=0; i<ParseResults.length; i++)
+    {
+        var result = ParseResults[i];
+        var filedValue = result.data[filedName];
+        var found = false;
+
+        for(var j=0; j<SplitResults.length; j++)
+        {
+            var spl = SplitResults[j];
+
+            if(spl.fieldValue === filedValue)
+            {
+                spl.results.push(result);
+                found = true;
+                break;
+            }
+        }
+
+        if(!found)
+        {
+            var r = new SplitResult();
+            r.fieldValue = filedValue;
+            r.results = [];
+            r.results.push(result);
+            SplitResults.push(r);
+        }
+    }
+
+    var log = "";
+
+    for(var i=0; i<SplitResults.length; i++)
+    {
+        var splRes = SplitResults[i];
+        log += splRes.fieldValue+ ": ";
+
+        for(var j=0; j<splRes.results.length; j++)
+        {
+            log += splRes.results[j].rule.symbol + " ";
+        }
+
+        log += "<br>";
+    }
+
+    editor.splitResultText.innerHTML = log;
+}
+
 $(document).ready(function() 
 {
     editor.LoadDataButton = document.getElementById("LoadDataButton");
     editor.elementRuleID = document.getElementById("elementRuleID");
     editor.loadDataArea = document.getElementById("loadData");
-    
     editor.ruleConditions = document.getElementById("ruleConditions");
     editor.addCondition = document.getElementById("addCondition");
     editor.applyRule = document.getElementById("applyRule");
-
     editor.applyCondition = document.getElementById("applyCondition");
     editor.conditionRadioRange = document.getElementById("conditionRadioRange");
     editor.conditionRadioNotRange = document.getElementById("conditionRadioNotRange");
     editor.conditionRadioEquals = document.getElementById("conditionRadioEquals");
     editor.conditionRadioNotEquals = document.getElementById("conditionRadioNotEquals");
-
     editor.conditionMinP = document.getElementById("conditionMinP");
     editor.conditionMinInput = document.getElementById("conditionMinInput");
     editor.conditionMaxP = document.getElementById("conditionMaxP");
@@ -725,20 +844,23 @@ $(document).ready(function()
     editor.conditionValueInput = document.getElementById("conditionValueInput");
     editor.conditionFieldInput = document.getElementById("conditionFieldInput");
     editor.conditionIDInput = document.getElementById("conditionIDInput");
-
     editor.rulesOrderDiv = document.getElementById("rulesOrderDiv");
     editor.addRuleButton = document.getElementById("addRuleButton");
     editor.ruleSymbolInput = document.getElementById("ruleSymbolInput");
-
     editor.saveJsonButton = document.getElementById("saveJsonButton");
     editor.loadJsonButton = document.getElementById("loadJsonButton");
-
     editor.testDataTextArea = document.getElementById("testDataTextArea");
     editor.testDataButton = document.getElementById("testDataButton");
     editor.testDataresult = document.getElementById("testDataresult");
-
     editor.convertionButton = document.getElementById("convertionButton");
     editor.convertionResultText = document.getElementById("convertionResultText");
+    editor.associationsButton = document.getElementById("associationsButton");
+    editor.associationResults = document.getElementById("associationResults");
+    editor.splitInput = document.getElementById("splitInput");
+    editor.splitButton = document.getElementById("splitButton");
+    editor.splitResultText =  document.getElementById("splitResultText");
+    editor.associationsMinSupport = document.getElementById("associationsMinSupport");
+    editor.associationsMinConfidience = document.getElementById("associationsMinConfidience");
 
     editor.LoadDataButton.className += " active";
 
@@ -771,6 +893,10 @@ $(document).ready(function()
         function() { editor.LoadJson(editor); });
     editor.convertionButton.addEventListener("click", 
         function() { editor.RunConvertion(editor); });
+    editor.associationsButton.addEventListener("click", 
+        function() { editor.RunAssociations(editor); });
+    editor.splitButton.addEventListener("click", 
+        function() { editor.RunSplit(editor); });
 
     /** @type {any} */
     var testDataTextAreaAny = editor.testDataTextArea;
