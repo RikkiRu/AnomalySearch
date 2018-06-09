@@ -608,7 +608,11 @@ RuleEditor.prototype.SaveJson = function(editor)
 /** @param {RuleEditor} editor */
 RuleEditor.prototype.LoadJson = function(editor)
 {
-    editor.json = JSON.parse(localStorage["editorJson"]);
+    if (localStorage["editorJson"] != null)
+        editor.json = JSON.parse(localStorage["editorJson"]);
+    else
+        editor.json = new Json();
+
     editor.RefreshEditRuleOrder(editor);
 }
 
