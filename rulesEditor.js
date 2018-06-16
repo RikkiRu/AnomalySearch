@@ -357,6 +357,20 @@ RuleEditor.prototype.RemoveRule = function(editor, ruleID)
  }
 
 /** @param {RuleEditor} editor */
+RuleEditor.prototype.GetRulesNamesHint = function(editor)
+{
+    var str = "";
+
+    for(var i=0; i<editor.json.rules.length; i++)
+    {
+        var rule = editor.json.rules[i];
+        str += rule.ID + " " + rule.symbol + " " + rule.name + "<br>";
+    }
+
+    return str;
+}
+
+/** @param {RuleEditor} editor */
 RuleEditor.prototype.ApplyRule = function(editor)
 {
     /** @type {any} */
@@ -859,12 +873,16 @@ RuleEditor.prototype.RunConvertion = function(editor)
         }
     }
 
-    editor.convertionResultText.innerHTML = "";
+    var log = "";
     for(var i=0; i<ParseResults.length; i++)
     {
         var result = ParseResults[i];
-        editor.convertionResultText.innerHTML += result.rule.symbol + " ";
+        log += result.rule.symbol + " ";
     }
+
+    log += "<br><br>";
+    log += editor.GetRulesNamesHint(editor);
+    editor.convertionResultText.innerHTML = log;
 }
 
 /** @param {RuleEditor} editor */
@@ -918,6 +936,9 @@ RuleEditor.prototype.RunAssociations = function(editor)
 
         log+="<br>";
     }
+
+    log += "<br>";
+    log += editor.GetRulesNamesHint(editor);
 
     editor.associationResults.innerHTML = log;
 
@@ -1024,6 +1045,9 @@ console.log($("#clusterFields"));
     {
         log += "Cluster " + JSON.stringify(t[i].centroid) + " " + JSON.stringify(t[i].points) + "<br>";
     }
+
+    log += "<br>";
+    log += editor.GetRulesNamesHint(editor);
 
     editor.clusterResults.innerHTML = log;
 
