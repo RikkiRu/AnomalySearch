@@ -6,6 +6,7 @@ function Rule()
     /** @type {number} */ this.ID = 0;
     /** @type {number[]} */ this.conditions = [];
     /** @type {string} */ this.symbol = "";
+    /** @type {string} */ this.name = "";
 }
 
 /** @typedef {number} ConditionType */
@@ -46,6 +47,7 @@ function RuleEditor()
 {
     /** @type {HTMLElement} */ this.LoadDataButton = null;
     /** @type {HTMLElement} */ this.elementRuleID = null;
+    /** @type {HTMLElement} */ this.elementRuleName = null;
     /** @type {HTMLElement} */ this.loadDataArea = null;
     /** @type {HTMLElement} */ this.ruleConditions = null;
     /** @type {HTMLElement} */ this.addCondition = null;
@@ -89,6 +91,7 @@ function RuleEditor()
 
     /** @type {number} */ this.ruleID = -1;
     /** @type {string} */ this.ruleSymbol = "";
+    /** @type {string} */ this.ruleName = "";
     /** @type {number[]} */ this.ruleTempConditions = [];
 
     /** @type {number} */ this.conditionID = -1;
@@ -282,7 +285,7 @@ RuleEditor.prototype.RemoveRule = function(editor, ruleID)
         var rule = editor.FindRule(editor, ruleID);
 
         var ruleDiv = document.createElement("div");
-        ruleDiv.innerHTML = ruleID.toString() + " " + rule.symbol;
+        ruleDiv.innerHTML = ruleID.toString() + " " + rule.symbol + " " + rule.name;
         editor.rulesOrderDiv.appendChild(ruleDiv);
 
         editor.RefreshEditRuleOrderCreateButtons(editor, ruleID);
@@ -295,6 +298,10 @@ RuleEditor.prototype.RemoveRule = function(editor, ruleID)
      /** @type {any} */
      var e = editor.elementRuleID;
      e.value = editor.ruleID;
+
+    /** @type {any} */
+    var ruleNameAny = editor.elementRuleName;
+    ruleNameAny.value = editor.ruleName;
 
      /** @type {any} */
     var sym = editor.ruleSymbolInput;
@@ -362,6 +369,10 @@ RuleEditor.prototype.ApplyRule = function(editor)
     editor.ruleID = id;
 
      /** @type {any} */
+    var nameInp = editor.elementRuleName;
+    editor.ruleName = nameInp.value;
+
+     /** @type {any} */
     var symInput = editor.ruleSymbolInput;
     editor.ruleSymbol = symInput.value;
 
@@ -387,6 +398,7 @@ RuleEditor.prototype.ApplyRule = function(editor)
     }
 
     rule.symbol = editor.ruleSymbol;
+    rule.name = editor.ruleName;
 
     editor.RefreshEditRule(editor);
     editor.RefreshEditRuleOrder(editor);
@@ -501,6 +513,7 @@ RuleEditor.prototype.SwitchToCondtion = function(editor, condition)
 RuleEditor.prototype.SwitchToRule = function(editor, rule)
 {
     editor.ruleID = rule.ID;
+    editor.ruleName = rule.name;
     editor.ruleTempConditions = [];
 
     for(var i=0; i<rule.conditions.length; i++)
@@ -1020,6 +1033,7 @@ $(document).ready(function()
 {
     editor.LoadDataButton = document.getElementById("LoadDataButton");
     editor.elementRuleID = document.getElementById("elementRuleID");
+    editor.elementRuleName = document.getElementById("elementRuleName");
     editor.loadDataArea = document.getElementById("loadData");
     editor.ruleConditions = document.getElementById("ruleConditions");
     editor.addCondition = document.getElementById("addCondition");
