@@ -15,7 +15,9 @@ var ConditionType =
     Range: 1,
     NotRange: 2,
     Equals: 3,
-    NotEquals: 4
+    NotEquals: 4,
+    ABC: 5,
+    ABCD: 6,
 }
 
 /** @class */
@@ -53,6 +55,8 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.conditionRadioNotRange = null;
     /** @type {HTMLElement} */ this.conditionRadioEquals = null;
     /** @type {HTMLElement} */ this.conditionRadioNotEquals = null;
+    /** @type {HTMLElement} */ this.conditionRadioABC = null;
+    /** @type {HTMLElement} */ this.conditionRadioABCD = null;
     /** @type {HTMLElement} */ this.conditionMinP = null;
     /** @type {HTMLElement} */ this.conditionMinInput = null;
     /** @type {HTMLElement} */ this.conditionMaxP = null;
@@ -65,7 +69,9 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.addRuleButton = null;
     /** @type {HTMLElement} */ this.ruleSymbolInput = null;
     /** @type {HTMLElement} */ this.saveJsonButton = null;
+    /** @type {HTMLElement} */ this.saveJsonRawButton = null;
     /** @type {HTMLElement} */ this.loadJsonButton = null;
+    /** @type {HTMLElement} */ this.loadJsonRawButton = null;
     /** @type {HTMLElement} */ this.testDataTextArea = null;
     /** @type {HTMLElement} */ this.testDataButton = null;
     /** @type {HTMLElement} */ this.testDataresult = null;
@@ -327,6 +333,12 @@ RuleEditor.prototype.RemoveRule = function(editor, ruleID)
             case ConditionType.NotRange:
                 conditionContent += "NOT IN [" + condition.min.toString() + ".." + condition.max.toString() + "]";
                 break;
+            case ConditionType.ABC:
+                conditionContent += "ABC " + condition.value.toString();
+                break;
+            case ConditionType.ABCD:
+                conditionContent += "ABCD " + condition.value.toString();
+                break;
         }
 
         var conditionContentElem = document.createElement("p");
@@ -395,6 +407,10 @@ RuleEditor.prototype.RefreshEditCondition = function(editor)
     /** @type {any} */
     var conditionRadioNotEquals = editor.conditionRadioNotEquals;
     /** @type {any} */
+    var conditionRadioABC = editor.conditionRadioABC;
+    /** @type {any} */
+    var conditionRadioABCD = editor.conditionRadioABCD;
+    /** @type {any} */
     var idInput = editor.conditionIDInput;
     /** @type {any} */
     var conditionFieldInput = editor.conditionFieldInput;
@@ -410,6 +426,8 @@ RuleEditor.prototype.RefreshEditCondition = function(editor)
     conditionRadioNotRange.checked = false;
     conditionRadioEquals.checked = false;
     conditionRadioNotEquals.checked = false;
+    conditionRadioABC.checked = false;
+    conditionRadioABCD.checked = false;
 
     editor.conditionMinP.style.display = "none";
     editor.conditionMinInput.style.display = "none";
@@ -449,6 +467,16 @@ RuleEditor.prototype.RefreshEditCondition = function(editor)
             break;
         case ConditionType.NotEquals:
             conditionRadioNotEquals.checked = true;
+            editor.conditionValueP.style.display = "block";
+            editor.conditionValueInput.style.display = "block";
+            break;
+        case ConditionType.ABC:
+            conditionRadioABC.checked = true;
+            editor.conditionValueP.style.display = "block";
+            editor.conditionValueInput.style.display = "block";
+            break;
+        case ConditionType.ABCD:
+            conditionRadioABCD.checked = true;
             editor.conditionValueP.style.display = "block";
             editor.conditionValueInput.style.display = "block";
             break;
@@ -617,22 +645,41 @@ RuleEditor.prototype.LoadJson = function(editor)
 }
 
 /** @param {RuleEditor} editor */
+RuleEditor.prototype.SaveRawJson = function(editor)
+{
+    var out = $("#jsRawSaveLoadTextArea")[0];
+    out.value = JSON.stringify(editor.json, null, 2);
+}
+
+/** @param {RuleEditor} editor */
+RuleEditor.prototype.LoadRawJson = function(editor)
+{
+    var out = $("#jsRawSaveLoadTextArea")[0];
+    editor.json = JSON.parse(out.value);
+    editor.RefreshEditRuleOrder(editor);
+}
+
+/** @param {RuleEditor} editor */
 /** @returns {Rule} */
 RuleEditor.prototype.ProcessData = function(editor, data)
 {
-    for(var i=0; i<editor.json.rulesOrder.length; i++)
+    var bestFuzzyRule = null;
+    var bestFuzzyValue = 0;
+
+    for (var i=0; i<editor.json.rulesOrder.length; i++)
     {
         var rule = editor.FindRule(editor, editor.json.rulesOrder[i]);
 
         var success = true;
+        var wasFuzzy = false;
 
-        for(var j=0; j<rule.conditions.length; j++)
+        for (var j=0; j<rule.conditions.length; j++)
         {
             var condition = editor.FindCondition(editor, rule.conditions[j]);
 
-            var v = parseFloat(data[condition.conditionField]);
+            var x = parseFloat(data[condition.conditionField]);
 
-            switch(condition.conditionType)
+            switch (condition.conditionType)
             {
                 case ConditionType.Equals:
                     success = data[condition.conditionField] == condition.value;
@@ -643,11 +690,21 @@ RuleEditor.prototype.ProcessData = function(editor, data)
                     break;
 
                 case ConditionType.Range:
-                    success = !isNaN(v) && condition.min <= v && v <= condition.max;
+                    success = !isNaN(x) && condition.min <= x && x <= condition.max;
                     break;
 
                 case ConditionType.NotRange:
-                    success = !isNaN(v) && !(condition.min <= v && v <= condition.max);
+                    success = !isNaN(x) && !(condition.min <= x && x <= condition.max);
+                    break;
+
+                case ConditionType.ABC:
+                    success = true;
+                    wasFuzzy = true;
+                    break;
+
+                case ConditionType.ABCD:
+                    success = true;
+                    wasFuzzy = true;
                     break;
 
                 default:
@@ -658,9 +715,89 @@ RuleEditor.prototype.ProcessData = function(editor, data)
                 break;
         }
 
-        if (success)
+        if (success && !wasFuzzy)
             return rule;
+
+        if (success && wasFuzzy)
+        {
+            var tempFuzzyValue = 0;
+            var tempFuzzyCount = 0;
+
+            for (var j=0; j<rule.conditions.length; j++)
+            {
+                var condition = editor.FindCondition(editor, rule.conditions[j]);
+                var x = parseFloat(data[condition.conditionField]);
+
+                if (isNaN(x))
+                    continue;
+
+                var tokens = [""];
+                var a = 0;
+                var b = 0;
+                var c = 0;
+                var d = 0;
+                var f = 0;
+
+                switch (condition.conditionType)
+                {
+                    case ConditionType.ABC:
+                        tokens = condition.value.split(" ");
+                        a = parseFloat(tokens[0]);
+                        b = parseFloat(tokens[1]);
+                        c = parseFloat(tokens[2]);
+
+                        if (a <= x && x <= b)
+                        {
+                            f = 1 - (b - x) / (b - a);
+                        }
+                        else if (b <= x && x <= c)
+                        {
+                            f = 1 - (x - b) / (c - b);
+                        }
+
+                        tempFuzzyValue += f;
+                        tempFuzzyCount++;
+
+                        break;
+                    case ConditionType.ABCD:
+                        tokens = condition.value.split(" ");
+                        a = parseFloat(tokens[0]);
+                        b = parseFloat(tokens[1]);
+                        c = parseFloat(tokens[2]);
+                        d = parseFloat(tokens[3]);
+
+                        if (a <= x && x <= b)
+                        {
+                            f = 1 - (b - x) / (b - a);
+                        }
+                        else if (b <= x && x <= c)
+                        {
+                            f = 1;
+                        }
+                        else if (c <= x && x <= d)
+                        {
+                            f = 1 - (x - c) / (d - x);
+                        }
+
+                        tempFuzzyValue += f;
+                        tempFuzzyCount++;
+
+                        break;
+                }
+            }
+
+            tempFuzzyValue /= tempFuzzyCount;
+
+            if (tempFuzzyValue > 0 && tempFuzzyValue > bestFuzzyValue)
+            {
+                bestFuzzyRule = rule;
+                bestFuzzyValue = tempFuzzyValue;
+            }
+        }
     }
+
+    if (bestFuzzyRule != null)
+        return bestFuzzyRule;
 
     return null;
 }
@@ -892,6 +1029,8 @@ $(document).ready(function()
     editor.conditionRadioNotRange = document.getElementById("conditionRadioNotRange");
     editor.conditionRadioEquals = document.getElementById("conditionRadioEquals");
     editor.conditionRadioNotEquals = document.getElementById("conditionRadioNotEquals");
+    editor.conditionRadioABC = document.getElementById("conditionRadioABC");
+    editor.conditionRadioABCD = document.getElementById("conditionRadioABCD");
     editor.conditionMinP = document.getElementById("conditionMinP");
     editor.conditionMinInput = document.getElementById("conditionMinInput");
     editor.conditionMaxP = document.getElementById("conditionMaxP");
@@ -904,7 +1043,9 @@ $(document).ready(function()
     editor.addRuleButton = document.getElementById("addRuleButton");
     editor.ruleSymbolInput = document.getElementById("ruleSymbolInput");
     editor.saveJsonButton = document.getElementById("saveJsonButton");
+    editor.saveJsonRawButton = document.getElementById("saveJsonRawButton");
     editor.loadJsonButton = document.getElementById("loadJsonButton");
+    editor.loadJsonRawButton = document.getElementById("loadJsonRawButton");
     editor.testDataTextArea = document.getElementById("testDataTextArea");
     editor.testDataButton = document.getElementById("testDataButton");
     editor.testDataresult = document.getElementById("testDataresult");
@@ -939,6 +1080,10 @@ $(document).ready(function()
         function() { editor.SwitchConditionType(editor, ConditionType.Equals) });
     editor.conditionRadioNotEquals.addEventListener("click", 
         function() { editor.SwitchConditionType(editor, ConditionType.NotEquals) });
+    editor.conditionRadioABC.addEventListener("click", 
+        function() { editor.SwitchConditionType(editor, ConditionType.ABC) });
+    editor.conditionRadioABCD.addEventListener("click", 
+        function() { editor.SwitchConditionType(editor, ConditionType.ABCD) });
     editor.applyCondition.addEventListener("click", 
         function() { editor.ApplyCondition(editor); });
     editor.applyRule.addEventListener("click", 
@@ -949,6 +1094,10 @@ $(document).ready(function()
         function() { editor.SaveJson(editor); });
     editor.loadJsonButton.addEventListener("click", 
         function() { editor.LoadJson(editor); });
+    editor.saveJsonRawButton.addEventListener("click", 
+        function() { editor.SaveRawJson(editor); });
+    editor.loadJsonRawButton.addEventListener("click", 
+        function() { editor.LoadRawJson(editor); });
     editor.convertionButton.addEventListener("click", 
         function() { editor.RunConvertion(editor); });
     editor.associationsButton.addEventListener("click", 
@@ -969,11 +1118,11 @@ $(document).ready(function()
 
                 if(result == null)
                 {
-                    editor.testDataresult.innerHTML = "NULL";
+                    editor.testDataresult.innerHTML = "Подходящие правила не найдены";
                 }
                 else
                 {
-                    editor.testDataresult.innerHTML = result.ID.toString() + " " + result.symbol;
+                    editor.testDataresult.innerHTML = "Событие преобразовано по правилу: " + result.ID.toString() + " " + result.symbol;
                 }
             }
             catch (Error)

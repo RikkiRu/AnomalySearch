@@ -20,11 +20,9 @@
         <div id="mainContainer">
             <div class="tab">
                 <button id="LoadDataButton" class="tablinks" onclick="OpenTab(event, 'LoadData')">Загрузка данных</button>
-                <button class="tablinks" onclick="OpenTab(event, 'RulesSet')">Набор правил</button>
-                <button class="tablinks" onclick="OpenTab(event, 'EditRule')">Редактировать правило</button>
-                <button class="tablinks" onclick="OpenTab(event, 'EditCondition')">Редактировать условие</button>
-                <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Преобразование</button>
-                <button class="tablinks" onclick="OpenTab(event, 'TabAssociations')">Ассоциации</button>
+                <button class="tablinks" onclick="OpenTab(event, 'RulesSet')">Набор правил преобразования в ЛВР</button>
+                <button class="tablinks" onclick="OpenTab(event, 'ConvertData')">Выполнение преобразования в ЛВР</button>
+                <button class="tablinks" onclick="OpenTab(event, 'TabAssociations')">Поиск ассоциаций</button>
                 <button class="tablinks" onclick="OpenTab(event, 'TabClusters')">Кластеризация</button>
                 <button class="tablinks" onclick="Navigate(event, 'anomaly.html')">Поиск аномалий</button>
             </div>
@@ -40,13 +38,18 @@
                     <div id="rulesOrderDiv"></div>
                     <br>
                     <button id="addRuleButton">Добавить правило</button>
-                    <button id="saveJsonButton">Сохранить правила</button>
-                    <button id="loadJsonButton">Загрузить правила</button>
+                    <button id="saveJsonButton">Сохранить правила в LocalStorage</button>
+                    <button id="loadJsonButton">Загрузить правила из LocalStorage</button>
 
                     <p>Проверка правил</p>
                     <textarea id="testDataTextArea"></textarea>
                     <button id="testDataButton">Проверить</button>
                     <p id="testDataresult"></p>
+
+                    <button id="saveJsonRawButton">Вывести правила JSON</button>
+                    <button id="loadJsonRawButton">Загрузить правила JSON</button>
+                    <p>Загрузка правил</p>
+                    <textarea id="jsRawSaveLoadTextArea"></textarea>
             </div>
 
             <div id="EditRule" class="tabcontent">
@@ -78,6 +81,8 @@
                 <input type="radio" id="conditionRadioNotRange" name="conditionRadioType"> Не принадлежит диапазону <br>
                 <input type="radio" id="conditionRadioEquals" name="conditionRadioType"> Равно <br>
                 <input type="radio" id="conditionRadioNotEquals" name="conditionRadioType"> Не равно <br>
+                <input type="radio" id="conditionRadioABC" name="conditionRadioType"> Нечёткая функция ABC <br>
+                <input type="radio" id="conditionRadioABCD" name="conditionRadioType"> Нечёткая функция ABCD <br>
                 
                 <p id="conditionMinP">Min</p>
                 <input id="conditionMinInput"></input>

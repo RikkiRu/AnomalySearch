@@ -1,0 +1,196 @@
+Имеется набор логов (онайн магазин)
+
+Имеется гипотеза (есть взаимосвязь между сделанными покупками)
+
+Составляем набор правил
+	Механизм работы преобразования
+
+Выполняем преобразование и разбиваем
+
+Анализируем ассоциации
+	Видим связь
+
+Смотрим в разбивке кто не подошёл
+
+Добавляем больше событий для анализа
+
+Записываем ряд без аномалий и с ними
+
+Выполняем поиск аномалий
+
+Делаем выводы
+
+-------------------------------
+
+a - покупал дешёвый
+b - покупал дорогой
+q - страница главная
+w - страница реклама
+e - страница продукт
+s - старт
+
+-------------------------------
+
+X
+sweb
+
+R
+sqeqeaqeb
+
+Прогнозирование
+Кластеризация
+
+
+
+
+{
+  "rulesOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "rules": [
+    {
+      "ID": 1,
+      "conditions": [
+        1,
+        5
+      ],
+      "symbol": "a"
+    },
+    {
+      "ID": 2,
+      "conditions": [
+        3,
+        4
+      ],
+      "symbol": "b"
+    },
+    {
+      "ID": 3,
+      "conditions": [
+        6,
+        7
+      ],
+      "symbol": "q"
+    },
+    {
+      "ID": 4,
+      "conditions": [
+        8,
+        9
+      ],
+      "symbol": "w"
+    },
+    {
+      "ID": 5,
+      "conditions": [
+        10,
+        11
+      ],
+      "symbol": "e"
+    },
+    {
+      "ID": 6,
+      "conditions": [
+        12
+      ],
+      "symbol": "s"
+    }
+  ],
+  "conditions": [
+    {
+      "ID": 1,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "buy",
+      "conditionField": "event"
+    },
+    {
+      "ID": 3,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "buy",
+      "conditionField": "event"
+    },
+    {
+      "ID": 4,
+      "conditionType": 1,
+      "min": 300,
+      "max": 1000,
+      "value": "",
+      "conditionField": "cost"
+    },
+    {
+      "ID": 5,
+      "conditionType": 1,
+      "min": 0,
+      "max": 300,
+      "value": "",
+      "conditionField": "cost"
+    },
+    {
+      "ID": 6,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "openPage",
+      "conditionField": "event"
+    },
+    {
+      "ID": 7,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "main",
+      "conditionField": "page"
+    },
+    {
+      "ID": 8,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "openPage",
+      "conditionField": "event"
+    },
+    {
+      "ID": 9,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "adv",
+      "conditionField": "page"
+    },
+    {
+      "ID": 10,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "openPage",
+      "conditionField": "event"
+    },
+    {
+      "ID": 11,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "product",
+      "conditionField": "page"
+    },
+    {
+      "ID": 12,
+      "conditionType": 3,
+      "min": 0,
+      "max": 0,
+      "value": "sessionStart",
+      "conditionField": "event"
+    }
+  ],
+  "conditionsCounter": 12,
+  "rulesCounter": 6
+}
