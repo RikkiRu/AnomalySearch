@@ -88,6 +88,7 @@ function RuleEditor()
     /** @type {HTMLElement} */ this.associationsMinConfidience = null;
     /** @type {HTMLElement} */ this.clustersButton = null;
     /** @type {HTMLElement} */ this.clusterResults = null;
+    /** @type {HTMLElement} */ this.backFromConditionButton = null;
 
     /** @type {number} */ this.ruleID = -1;
     /** @type {string} */ this.ruleSymbol = "";
@@ -908,14 +909,14 @@ RuleEditor.prototype.RunAssociations = function(editor)
         }
 
         transactions.push(arr);
-        console.log(arr);
+        //console.log(arr);
     }
 
     //minSupport, minConfidence
     var apriori = new Apriori.Algorithm(support, confidence);
     var result = apriori.analyze(transactions);
 
-    console.log(result);
+    //console.log(result);
 
     var log = "";
 
@@ -1003,7 +1004,7 @@ RuleEditor.prototype.RunSplit = function(editor)
 /** @param {RuleEditor} editor */
 RuleEditor.prototype.RunClusters = function(editor)
 {
-console.log($("#clusterFields"));
+//console.log($("#clusterFields"));
 
     var fields = $("#clusterFields")[0].value.split(" ");
 
@@ -1031,14 +1032,14 @@ console.log($("#clusterFields"));
             arr.push(n);
         }
 
-        console.log(splRes.fieldValue + " " + JSON.stringify(arr));
+        //console.log(splRes.fieldValue + " " + JSON.stringify(arr));
 
         data.push(arr);
     }
 
     kmeansModule.data(data);
     var t  = kmeansModule.clusters();
-    console.log();
+    //console.log();
 
     var log = "";
     for(var i=0; i<t.length; i++)
@@ -1098,6 +1099,7 @@ $(document).ready(function()
     editor.associationsMinConfidience = document.getElementById("associationsMinConfidience");
     editor.clustersButton = document.getElementById("clustersButton");
     editor.clusterResults = document.getElementById("clusterResults");
+    editor.backFromConditionButton = document.getElementById("backFromConditionButton");
 
     editor.LoadDataButton.className += " active";
 
@@ -1109,7 +1111,6 @@ $(document).ready(function()
 
     editor.addCondition.addEventListener("click", 
         function() { editor.AddCondition(editor); });
-
     editor.conditionRadioRange.addEventListener("click", 
         function() { editor.SwitchConditionType(editor, ConditionType.Range) });
     editor.conditionRadioNotRange.addEventListener("click", 
@@ -1144,6 +1145,8 @@ $(document).ready(function()
         function() { editor.RunSplit(editor); });
     editor.clustersButton.addEventListener("click", 
         function() { editor.RunClusters(editor); });
+    editor.backFromConditionButton.addEventListener("click", 
+        function() { OpenTab(null, "EditRule"); });
 
     /** @type {any} */
     var testDataTextAreaAny = editor.testDataTextArea;
