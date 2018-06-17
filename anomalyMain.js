@@ -283,10 +283,15 @@ App.prototype.applyConvertAll = function()
 App.prototype.buildTrees = function()
 {
     app.log("<b>Построение деревьев<b>");
+
     app.treeBuilderX.buildTree();
     app.treeBuilderR.buildTree();
+
+    var start = new Date().getTime();
     var anomalyList = tarzan(app.treeBuilderX.sTree, app.treeBuilderR.sTree);
-    
+    var end = new Date().getTime();
+    console.log(end - start);
+
     for(var i=0; i<anomalyList.length; i++)
     {
         var a = anomalyList[i];
