@@ -103,6 +103,7 @@ function RuleEditor()
     /** @type {string} */ this.conditionValue = "";
 
     /** @type {Json} */ this.json = new Json();
+    /** @type {number} */ this.performanceTest = 1;
 }
 
 /** @param {RuleEditor} editor */
@@ -853,12 +854,25 @@ function ParseResult()
 /** @param {RuleEditor} editor */
 RuleEditor.prototype.RunConvertion = function(editor)
 {
+    var start = new Date().getTime();
+
     ParseResults = [];
 
     /** @type {any} */
     var loadDataAreaAny = editor.loadDataArea;
     /** @type {object[]} */
-    var parsed = JSON.parse(loadDataAreaAny.value);
+    var parsed = [];
+    
+    console.log("performanceTest " + editor.performanceTest.toString());
+
+    for(var i=0; i<editor.performanceTest; i++)
+    {
+        var t = JSON.parse(loadDataAreaAny.value);
+        for(var j=0; j<t.length; j++)
+        {
+            parsed.push(t[j]);
+        }
+    }
 
     for (var i=0; i<parsed.length; i++)
     {
@@ -884,11 +898,16 @@ RuleEditor.prototype.RunConvertion = function(editor)
     log += "<br><br>";
     log += editor.GetRulesNamesHint(editor);
     editor.convertionResultText.innerHTML = log;
+
+    var end = new Date().getTime();
+    console.log("Convertion time: " + (end - start));
 }
 
 /** @param {RuleEditor} editor */
 RuleEditor.prototype.RunAssociations = function(editor)
 {
+    var start = new Date().getTime();
+
     //var transactions = [["a", "b", "c"], ["a", "b", "c"], ["a", "b", "d"]];
 
     var support = 0; // parseFloat(editor.associationsMinSupport.value);
@@ -945,6 +964,9 @@ RuleEditor.prototype.RunAssociations = function(editor)
 
     //assert.equal(5, result.associationRules.length);
     //new Apriori.Algorithm(0.15, 0.6, false).showAnalysisResultFromFile('dataset.csv');
+
+    var end = new Date().getTime();
+    console.log("Associations time: " + (end - start));
 }
 
 /** @param {RuleEditor} editor */
@@ -1006,6 +1028,8 @@ RuleEditor.prototype.RunClusters = function(editor)
 {
 //console.log($("#clusterFields"));
 
+    var start = new Date().getTime();
+
     var fields = $("#clusterFields")[0].value.split(" ");
 
 
@@ -1017,7 +1041,7 @@ RuleEditor.prototype.RunClusters = function(editor)
         var splRes = SplitResults[i];
         var arr = [];
 
-        for(var d=0; d<fields.length; d++)
+        for(var d=1; d<fields.length; d++)
         {
             var f = fields[d];
             var n = 0;
@@ -1037,6 +1061,7 @@ RuleEditor.prototype.RunClusters = function(editor)
         data.push(arr);
     }
 
+    kmeansModule.k(fields[0]); 
     kmeansModule.data(data);
     var t  = kmeansModule.clusters();
     //console.log();
@@ -1052,6 +1077,8 @@ RuleEditor.prototype.RunClusters = function(editor)
 
     editor.clusterResults.innerHTML = log;
 
+    var end = new Date().getTime();
+    console.log("Clusterization time: " + (end - start));
 }
 
 $(document).ready(function() 
